@@ -61,7 +61,6 @@ You need to load the downloaded release as an unpacked extension. This process d
    1. The lobby code that can be used by others to join.
    2. The players who have currently joined.
    3. The game timer which will not count down until the game has started.
-   4. The source and destination pages (which haven't been picked yet).
 3. Players must now submit candidates for a destination page. Each player enters a URL to a Wikipedia article. This can be left blank.
 4. The lobby creator can end submission. This causes one of the submitted destinations to be picked at random.
    1. If all submissions are blank, the page for Shia LaBeouf is selected. Yup, at least one of you'd better submit a URL. [Or else](https://www.youtube.com/watch?v=o0u4M6vppCI).

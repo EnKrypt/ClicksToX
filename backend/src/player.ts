@@ -4,6 +4,7 @@ import config from './config.js';
 import { clientToLobbyMapping, codeToLobbyMapping } from './index.js';
 import { broadcastPlayerListing } from './lobby.js';
 import { handlePlayerError, logger } from './logging.js';
+import { STAGE } from './types.js';
 
 interface AddPlayerToLobbyRequest {
   client: WebSocket;
@@ -67,6 +68,15 @@ export const addPlayerToLobby = ({
     handlePlayerError({
       eventDescription: `Cannot add player '${alias}' to lobby '${code}'`,
       reasonShownToPlayer: `Lobby is at maximum player limit`,
+      client,
+    });
+    return;
+  }
+
+  if (lobby.state.stage !== STAGE.WAITING_FOR_PLAYERS_TO_JOIN) {
+    handlePlayerError({
+      eventDescription: `Cannot add player '${alias}' to lobby '${code}'`,
+      reasonShownToPlayer: `Lobby has a game already in progress`,
       client,
     });
     return;

@@ -2,9 +2,14 @@ import { WebSocketServer, type WebSocket } from 'ws';
 import config from './config.js';
 import { createLobby } from './lobby.js';
 import { logger } from './logging.js';
+import { submitDestinationPageCandidate } from './pages.js';
 import { addPlayerToLobby, removePlayer } from './player.js';
 import { type Lobby } from './types.js';
-import { validateCreateCommand, validateJoinCommand } from './validation.js';
+import {
+  validateCreateCommand,
+  validateJoinCommand,
+  validateSubmitCommand,
+} from './validation.js';
 
 const wss = new WebSocketServer({ port: config.port });
 
@@ -58,6 +63,13 @@ wss.on('connection', (client, request) => {
           alias: commands[1],
           isCreator: false,
         });
+        break;
+      }
+      case 'SUBMIT': {
+        if (!validateSubmitCommand({ client, commands })) {
+          return;
+        }
+        submitDestinationPageCandidate({ client, submission: commands[1] });
         break;
       }
       default:

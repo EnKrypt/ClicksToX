@@ -57,7 +57,7 @@ export const broadcastToLobbyPlayers = ({
   message,
   code,
 }: BroadcastToLobbyPlayersRequest) => {
-  logger.verbose(`Broadcasting to lobby ${code}: ${message}`);
+  logger.verbose(`Broadcasting to lobby '${code}': ${message}`);
   const lobby = codeToLobbyMapping.get(code);
   if (!lobby) {
     logger.warn('Cannot broadcast to nonexistent lobby');
@@ -75,14 +75,14 @@ interface BroadcastPlayerListingRequest {
 export const broadcastPlayerListing = ({
   code,
 }: BroadcastPlayerListingRequest) => {
-  logger.verbose(`Broadcasting updated player listing to lobby ${code}`);
+  logger.verbose(`Broadcasting updated player listing to lobby '${code}'`);
   const lobby = codeToLobbyMapping.get(code);
   if (!lobby) {
     logger.warn('Cannot broadcast player listing to nonexistent lobby');
     return;
   }
   broadcastToLobbyPlayers({
-    message: `PLAYERS ${lobby.code} ${lobby.players.map((player) => player.alias).join(',')}`,
+    message: `PLAYERS ${lobby.code} ${lobby.state.timer} ${lobby.players.map((player) => player.alias).join(',')}`,
     code,
   });
 };

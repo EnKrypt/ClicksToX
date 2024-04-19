@@ -1,4 +1,5 @@
 import { type WebSocket } from 'ws';
+import config from './config.js';
 import { handlePlayerError } from './logging.js';
 
 interface ValidationRequest {
@@ -85,6 +86,57 @@ export const validateJoinCommand = ({
     handlePlayerError({
       eventDescription: 'Could not join lobby',
       reasonShownToPlayer: 'Lobby code must be 4 digits and alphanumeric',
+      client,
+    });
+    return false;
+  }
+  return true;
+};
+
+export const validateSubmitCommand = ({
+  client,
+  commands,
+}: ValidationRequest): boolean => {
+  if (commands.length !== 2) {
+    handlePlayerError({
+      eventDescription: 'Could not submit destination page candidate',
+      reasonShownToPlayer:
+        'Invalid command format; updating the extension may be required',
+      client,
+    });
+    return false;
+  }
+  if (commands[1].length > 128) {
+    handlePlayerError({
+      eventDescription: 'Could not submit destination page candidate',
+      reasonShownToPlayer: 'Submission is greater than 128 characters',
+      client,
+    });
+    return false;
+  }
+  try {
+    const candidate = new URL(commands[1]);
+    if (candidate.host !== config.wikipediaHost) {
+      handlePlayerError({
+        eventDescription: 'Could not submit destination page candidate',
+        reasonShownToPlayer: `Host of the submitted URL is not '${config.wikipediaHost}'`,
+        client,
+      });
+      return false;
+    }
+    if (!/^\/wiki\/[^/]+$/.test(candidate.pathname)) {
+      handlePlayerError({
+        eventDescription: 'Could not submit destination page candidate',
+        reasonShownToPlayer:
+          'Submission URL does not follow pattern for Wikipedia articles; trailing slashes may need to be removed',
+        client,
+      });
+      return false;
+    }
+  } catch {
+    handlePlayerError({
+      eventDescription: 'Could not submit destination page candidate',
+      reasonShownToPlayer: `'${commands[1]}' is not a valid URL`,
       client,
     });
     return false;

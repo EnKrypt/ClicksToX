@@ -76,6 +76,11 @@ You need to load the downloaded release as an unpacked extension. This process d
 9. When the timer goes to zero, the game ends. At this point, the indicators update to reflect the click count of each player. You can also traverse the tree that each player took as they were navigating.
 10. The lobby creator can start a new game by opening submissions for the destination page.
 
+## Cheating
+
+All actions and events including the timer countdown happen server-side. That said, there is no anti-cheat functionality implemented here, nor are such features planned.
+The best anti-cheat is to play with people you know who value their time enough to not cheat in a party game.
+
 ## Context
 
 This is a game I played with my friends back in high school. We originally called it 'Clicks to Hitler' since Hitler's Wikipedia page was the only destination page we played with. See [The Wikipedia Game](https://en.wikipedia.org/wiki/Wikipedia:Wiki_Game#Variations). \

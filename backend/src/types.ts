@@ -2,7 +2,6 @@ import { WebSocket } from 'ws';
 
 export enum STAGE {
   WAITING_FOR_PLAYERS_TO_JOIN,
-  SUBMITTING_DESTINATION,
   PLAYING,
   FINISHED,
 }
@@ -14,6 +13,7 @@ export interface Lobby {
     alias: string;
     connection: WebSocket;
     submission: URL | undefined;
+    tree: Node | undefined;
   }>;
   code: string;
   createdAt: Date;
@@ -24,4 +24,10 @@ export interface State {
   timer: number;
   source: URL | undefined;
   destination: URL | undefined;
+}
+
+export interface Node {
+  article: URL;
+  when: Date;
+  children: Node[];
 }

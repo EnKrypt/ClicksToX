@@ -87,6 +87,7 @@ export const addPlayerToLobby = ({
     alias,
     connection: client,
     submission: undefined,
+    tree: undefined,
   });
   clientToLobbyMapping.set(client, lobby);
   broadcastPlayerListing({ code: lobby.code });

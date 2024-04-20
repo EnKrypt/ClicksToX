@@ -1,7 +1,7 @@
 import { type WebSocket } from 'ws';
 import { codeToLobbyMapping } from './index.js';
 import { handlePlayerError, logger } from './logging.js';
-import { STAGE } from './types.js';
+import { Lobby, Node, STAGE } from './types.js';
 
 const MAX_ATTEMPTS_TO_CREATE_UNIQUE_LOBBY_CODE = 3;
 const LOBBY_CODE_SIZE = 4; // Must be < 10
@@ -85,4 +85,91 @@ export const broadcastPlayerListing = ({
     message: `PLAYERS ${lobby.code} ${lobby.state.timer} ${lobby.players.map((player) => player.alias).join(',')}`,
     code,
   });
+};
+
+interface StartGameRequest {
+  lobby: Lobby;
+}
+
+export const startGame = ({ lobby }: StartGameRequest) => {
+  lobby.state.stage = STAGE.PLAYING;
+  broadcastToLobbyPlayers({
+    message: `PLAYING ${lobby.state.source} ${lobby.state.destination}`,
+    code: lobby.code,
+  });
+  const intervalId = setInterval(() => {
+    if (lobby.state.timer === 0) {
+      clearTimeout(intervalId);
+      endGame({ lobby });
+    }
+    lobby.state.timer = lobby.state.timer - 1;
+  }, 1000);
+};
+
+interface EndGameRequest {
+  lobby: Lobby;
+}
+
+const endGame = ({ lobby }: EndGameRequest) => {
+  lobby.state.stage = STAGE.FINISHED;
+  const shortestPath = { count: Infinity, alias: '' };
+  for (const player of lobby.players) {
+    const shortestCountOfPlayer = player.tree
+      ? shortestPathInTree({
+          count: -1,
+          destinationPathname: lobby.state.destination?.pathname as string,
+          tree: player.tree.children,
+        })
+      : -1;
+    if (
+      shortestCountOfPlayer !== -1 &&
+      shortestCountOfPlayer < shortestPath.count
+    ) {
+      shortestPath.count = shortestCountOfPlayer;
+      shortestPath.alias = player.alias;
+    }
+  }
+  if (shortestPath.alias) {
+    broadcastToLobbyPlayers({
+      message: `FINISH ${shortestPath.count},${shortestPath.alias}`,
+      code: lobby.code,
+    });
+    return;
+  }
+  // Nobody finished, so no winner
+  broadcastToLobbyPlayers({
+    message: `FINISH -1`,
+    code: lobby.code,
+  });
+};
+
+interface ShortestPathInTreeRequest {
+  count: number;
+  destinationPathname: string;
+  tree: Node[];
+}
+
+const shortestPathInTree = ({
+  count,
+  destinationPathname,
+  tree,
+}: ShortestPathInTreeRequest): number => {
+  const counts = [];
+  for (const node of tree) {
+    if (node.article.pathname === destinationPathname) {
+      return count + 1;
+    }
+    counts.push(
+      shortestPathInTree({
+        count: count + 1,
+        destinationPathname,
+        tree: node.children,
+      })
+    );
+  }
+  const filteredCounts = counts.filter((count) => count !== -1);
+  if (filteredCounts.length) {
+    return Math.min(...filteredCounts);
+  }
+  return -1;
 };

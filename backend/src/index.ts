@@ -2,7 +2,7 @@ import { WebSocketServer, type WebSocket } from 'ws';
 import config from './config.js';
 import { createLobby } from './lobby.js';
 import { logger } from './logging.js';
-import { submitDestinationPageCandidate } from './pages.js';
+import { endSubmission, submitDestinationPageCandidate } from './pages.js';
 import { addPlayerToLobby, removePlayer } from './player.js';
 import { type Lobby } from './types.js';
 import {
@@ -27,7 +27,7 @@ wss.on('connection', (client, request) => {
     removePlayer({ client, request });
   });
 
-  client.on('message', (data) => {
+  client.on('message', async (data) => {
     const message = data.toString('utf8');
     logger.debug(`Received: ${message}`);
     const commands = message.split(' ');
@@ -70,6 +70,10 @@ wss.on('connection', (client, request) => {
           return;
         }
         submitDestinationPageCandidate({ client, submission: commands[1] });
+        break;
+      }
+      case 'END_SUBMISSION': {
+        await endSubmission({ client });
         break;
       }
       default:

@@ -69,7 +69,8 @@ You need to load the downloaded release as an unpacked extension. This process d
    1. The source page auto-opens.
    1. The timer starts to count down.
 7. As you make your way to the destination page, you will notice indicators for whether a player has completed a path from the source page to the destination page.
-8. The background of the UI will also change according to the progress:
+   1. Open links by clicking on them or by opening them in a new tab preferably. Do not restore closed tabs with Ctrl(or Cmd)+Shift+T and do not open links by opening them from a different page unrelated to the game or by pasting the URL.
+8. The background of the UI will also change according to your progress:
    1. A black background indicates that you have not completed the path to the destination page.
    2. A green background indicates that you are currently the first to complete the path in the fewest clicks in the lobby.
    3. A blue background indicates that you have completed the path but either not in as few clicks as someone else in the lobby, or you were not the first to do so.
@@ -78,7 +79,8 @@ You need to load the downloaded release as an unpacked extension. This process d
 
 ## Cheating
 
-All actions and events including the timer countdown happen server-side. That said, there is no anti-cheat functionality implemented here, nor are such features planned.
+All actions and events including the timer countdown happen server-side. There is client side validation for opening links that are present in the current page.
+That said, there is no server-side anti-cheat functionality implemented here, nor are such features planned.
 The best anti-cheat is to play with people you know who value their time enough to not cheat in a party game.
 
 ## Context

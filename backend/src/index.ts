@@ -2,13 +2,18 @@ import { WebSocketServer, type WebSocket } from 'ws';
 import config from './config.js';
 import { createLobby, resetLobby } from './lobby.js';
 import { logger } from './logging.js';
-import { endSubmission, submitDestinationPageCandidate } from './pages.js';
+import {
+  endSubmission,
+  submitDestinationPageCandidate,
+  visitPage,
+} from './pages.js';
 import { addPlayerToLobby, removePlayer } from './player.js';
 import { type Lobby } from './types.js';
 import {
   validateCreateCommand,
   validateJoinCommand,
   validateSubmitCommand,
+  validateVisitCommand,
 } from './validation.js';
 
 const wss = new WebSocketServer({ port: config.port });
@@ -78,6 +83,13 @@ wss.on('connection', (client, request) => {
       }
       case 'RESET': {
         resetLobby({ client });
+        break;
+      }
+      case 'VISIT': {
+        if (!validateVisitCommand({ client, commands })) {
+          return;
+        }
+        visitPage({ client, parent: commands[1], visited: commands[2] });
         break;
       }
       default:

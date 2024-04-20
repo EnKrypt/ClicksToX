@@ -3,7 +3,7 @@ import config from './config.js';
 import { clientToLobbyMapping } from './index.js';
 import { broadcastToLobbyPlayers, startGame } from './lobby.js';
 import { handlePlayerError, logger } from './logging.js';
-import { Lobby } from './types.js';
+import { Lobby, Node } from './types.js';
 
 interface SubmitDestinationPageCandidateRequest {
   client: WebSocket;
@@ -107,4 +107,73 @@ const setPages = async ({ lobby }: SetPagesRequest) => {
   }
   lobby.state.source = source;
   lobby.state.destination = destination;
+};
+
+interface VisitPageRequest {
+  client: WebSocket;
+  parent: string;
+  visited: string;
+}
+
+export const visitPage = ({ client, parent, visited }: VisitPageRequest) => {
+  const lobby = clientToLobbyMapping.get(client);
+  if (!lobby) {
+    handlePlayerError({
+      eventDescription: 'Could not update player navigation tree',
+      reasonShownToPlayer:
+        'Cannot navigate to pages for the game without being a player in a lobby first',
+      client,
+    });
+    return false;
+  }
+  const player = lobby.players.find((player) => player.connection === client);
+  if (!player) {
+    handlePlayerError({
+      eventDescription: 'Could not update player navigation tree',
+      reasonShownToPlayer:
+        'Could not find player state; rejoining to the lobby may be required',
+      client,
+    });
+    return false;
+  }
+  const parentNode = player.tree
+    ? findNodeInTree({ pathname: parent, node: player.tree })
+    : undefined;
+  if (!parentNode) {
+    handlePlayerError({
+      eventDescription: 'Could not update player navigation tree',
+      reasonShownToPlayer:
+        'Could not find parent node in the existing navigation tree',
+      client,
+    });
+    return false;
+  }
+  parentNode.children.push({
+    article: new URL(`https://${config.wikipediaHost}${visited}`),
+    when: new Date(),
+    children: [],
+  });
+};
+
+interface FindNodeInTreeRequest {
+  pathname: string;
+  node: Node;
+}
+
+const findNodeInTree = ({
+  pathname,
+  node,
+}: FindNodeInTreeRequest): Node | undefined => {
+  if (node.article.pathname === pathname) {
+    return node;
+  }
+  if (node.children.length) {
+    for (const childNode of node.children) {
+      const targetNode = findNodeInTree({ pathname, node: childNode });
+      if (targetNode) {
+        return targetNode;
+      }
+    }
+  }
+  return undefined;
 };

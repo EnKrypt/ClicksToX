@@ -143,3 +143,35 @@ export const validateSubmitCommand = ({
   }
   return true;
 };
+
+export const validateVisitCommand = ({
+  client,
+  commands,
+}: ValidationRequest): boolean => {
+  if (commands.length !== 3) {
+    handlePlayerError({
+      eventDescription: 'Could not update player navigation tree',
+      reasonShownToPlayer:
+        'Invalid command format; updating the extension may be required',
+      client,
+    });
+    return false;
+  }
+  if (!commands[1].startsWith('/wiki/')) {
+    handlePlayerError({
+      eventDescription: 'Could not update player navigation tree',
+      reasonShownToPlayer: `Parent node '${commands[1]}' is not a valid Wikipedia article path`,
+      client,
+    });
+    return false;
+  }
+  if (!commands[2].startsWith('/wiki/')) {
+    handlePlayerError({
+      eventDescription: 'Could not update player navigation tree',
+      reasonShownToPlayer: `Visited node '${commands[2]}' is not a valid Wikipedia article path`,
+      client,
+    });
+    return false;
+  }
+  return true;
+};

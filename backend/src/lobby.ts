@@ -1,5 +1,5 @@
 import { type WebSocket } from 'ws';
-import { codeToLobbyMapping } from './index.js';
+import { clientToLobbyMapping, codeToLobbyMapping } from './index.js';
 import { handlePlayerError, logger } from './logging.js';
 import { Lobby, Node, STAGE } from './types.js';
 
@@ -33,6 +33,7 @@ export const createLobby = ({
           destination: undefined,
         },
         players: [],
+        roundTimeLimit,
         code,
         createdAt: new Date(),
       });
@@ -172,4 +173,57 @@ const shortestPathInTree = ({
     return Math.min(...filteredCounts);
   }
   return -1;
+};
+
+interface ResetLobbyRequest {
+  client: WebSocket;
+}
+
+export const resetLobby = ({ client }: ResetLobbyRequest) => {
+  const lobby = clientToLobbyMapping.get(client);
+  if (!lobby) {
+    handlePlayerError({
+      eventDescription: 'Could not reset lobby for a new game',
+      reasonShownToPlayer:
+        'Cannot reset lobby without being a player in a lobby first',
+      client,
+    });
+    return false;
+  }
+  if (lobby.state.stage !== STAGE.FINISHED) {
+    handlePlayerError({
+      eventDescription: 'Could not reset lobby for a new game',
+      reasonShownToPlayer:
+        'Cannot reset a lobby until it is just finished a game',
+      client,
+    });
+    return false;
+  }
+  const player = lobby.players.find((player) => player.connection === client);
+  if (!player) {
+    handlePlayerError({
+      eventDescription: 'Could not reset lobby for a new game',
+      reasonShownToPlayer:
+        'Could not find player state; rejoining to the lobby may be required',
+      client,
+    });
+    return false;
+  }
+  if (!player.isCreator) {
+    handlePlayerError({
+      eventDescription: 'Could not reset lobby for a new game',
+      reasonShownToPlayer:
+        'Only the lobby creator can reset the lobby for a new game',
+      client,
+    });
+    return false;
+  }
+  lobby.state.stage = STAGE.WAITING_FOR_PLAYERS_TO_JOIN;
+  lobby.state.source = undefined;
+  lobby.state.destination = undefined;
+  lobby.state.timer = lobby.roundTimeLimit;
+  for (const player of lobby.players) {
+    player.tree = undefined;
+  }
+  broadcastPlayerListing({ code: lobby.code });
 };

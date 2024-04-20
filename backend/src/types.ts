@@ -15,6 +15,7 @@ export interface Lobby {
     submission: URL | undefined;
     tree: Node | undefined;
   }>;
+  roundTimeLimit: number;
   code: string;
   createdAt: Date;
 }

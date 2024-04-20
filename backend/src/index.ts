@@ -1,6 +1,6 @@
 import { WebSocketServer, type WebSocket } from 'ws';
 import config from './config.js';
-import { createLobby } from './lobby.js';
+import { createLobby, resetLobby } from './lobby.js';
 import { logger } from './logging.js';
 import { endSubmission, submitDestinationPageCandidate } from './pages.js';
 import { addPlayerToLobby, removePlayer } from './player.js';
@@ -74,6 +74,10 @@ wss.on('connection', (client, request) => {
       }
       case 'END_SUBMISSION': {
         await endSubmission({ client });
+        break;
+      }
+      case 'RESET': {
+        resetLobby({ client });
         break;
       }
       default:

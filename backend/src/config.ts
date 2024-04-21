@@ -1,5 +1,3 @@
-import 'dotenv/config';
-
 const config = {
   port: Number(process.env.PORT) || 9980,
   lobbyPlayerLimit: Number(process.env.LOBBY_PLAYER_LIMIT) || 10,

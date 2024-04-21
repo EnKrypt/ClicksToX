@@ -1,0 +1,19 @@
+{
+  "manifest_version": 2,
+  "name": "ClicksToX",
+  "version": "1.0",
+
+  "description": "A browser game where your lobby races to get from one Wikipedia page to another in the fewest clicks",
+
+  "icons": {
+    "48": "icons/icon-48x48.png",
+    "96": "icons/icon-96x96.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["dist/index.cjs"]
+    }
+  ]
+}

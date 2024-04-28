@@ -6,10 +6,18 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   build: {
+    sourcemap: true,
+    emptyOutDir: false,
     lib: {
-      entry: resolve(__dirname, 'src/main.tsx'),
+      entry: resolve(
+        __dirname,
+        process.env.LIB === 'background-script'
+          ? 'src/background.ts'
+          : 'src/main.tsx'
+      ),
       formats: ['cjs'],
-      fileName: 'index',
+      fileName:
+        process.env.LIB === 'background-script' ? 'background' : 'index',
     },
   },
   define: {

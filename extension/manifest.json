@@ -10,6 +10,10 @@
     "96": "icons/icon-96x96.png"
   },
 
+  "background": {
+    "scripts": ["dist/background.cjs"]
+  },
+
   "content_scripts": [
     {
       "matches": ["<all_urls>"],

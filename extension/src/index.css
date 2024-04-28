@@ -1,3 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
 .clicks-to-x {
+  font-family: 'Inter', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: 'slnt' 0;
+
+  background: #202020;
+  color: white;
+  height: 500px;
+  width: 400px;
+  position: fixed;
+  top: 1em;
+  right: 1em;
+  z-index: 1000;
+  border-radius: 0.25em;
+  box-shadow: 6px 4px 10px black;
+}
+
+.clicks-to-x .tab-menu {
+  display: flex;
+  align-items: center;
+  background: #909090;
+  gap: 1px;
+}
+
+.clicks-to-x .tab-menu div {
+  flex-grow: 1;
+  background: #404040;
+  padding: 1em 0;
+  text-align: center;
+  cursor: pointer;
+  border-bottom: solid 1px #909090;
+  transition: background-color 0.3s ease;
+}
+
+.clicks-to-x .tab-menu div.active {
+  border: none;
+  background: #202020;
+}
+
+.clicks-to-x .tab-menu div:hover {
+  background: #474747;
+}
+
+.clicks-to-x .tab-menu div:active {
+  background: #202020;
+}
+
+.clicks-to-x .tab-menu div.active:hover {
+  background: #202020;
+}
+
+.clicks-to-x .tab-content {
+  padding: 1em;
+}
+
+.clicks-to-x .tab-content .field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.clicks-to-x .tab-content .field .field-name {
+  width: 7em;
+}
+
+.clicks-to-x .tab-content .field input {
+  background: #303030;
+  border: 1px solid #505050;
+  color: #c0c0c0;
+  padding: 0.5em 1em;
+  margin: 0.5em 0;
+  flex-grow: 1;
+  box-sizing: border-box;
+}
+
+.clicks-to-x .tab-content .field input:focus {
+  outline: none;
+  border-color: #777;
+}
+
+.clicks-to-x .tab-content button {
+  display: block;
+  color: white;
+  margin: 1em auto;
+  background: #303030;
+  border: none;
+  padding: 0.5em 1em;
+  font-size: 1em;
+  width: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.clicks-to-x .tab-content button:hover {
+  background: #404040;
+}
+
+.clicks-to-x .tab-content button:active {
   background: #202020;
 }

@@ -18,14 +18,23 @@ const App = () => {
     setError({ show: true, message });
   };
 
+  const hideError = () => {
+    setError({ show: false, message: '' });
+  };
+
   const createLobby = (url: string, alias: string, roundTimeLimit: string) => {
     if (!url || !alias || !roundTimeLimit) {
       showError('Field cannot be blank');
+      return;
     }
     port?.postMessage({ url, command: `CREATE ${alias} ${roundTimeLimit}` });
   };
 
   const joinLobby = (url: string, alias: string, lobbyCode: string) => {
+    if (!url || !alias || !lobbyCode) {
+      showError('Field cannot be blank');
+      return;
+    }
     port?.postMessage({ url, command: `JOIN ${alias} ${lobbyCode}` });
   };
 
@@ -43,7 +52,7 @@ const App = () => {
   }, []);
 
   if (loading) {
-    return <LoadingScreen error={error} />;
+    return <LoadingScreen error={error} hideError={hideError} />;
   }
 
   switch (gameState.stage) {
@@ -53,6 +62,7 @@ const App = () => {
           createLobby={createLobby}
           joinLobby={joinLobby}
           error={error}
+          hideError={hideError}
         />
       );
     default:

@@ -1,15 +1,16 @@
+import Error from './Error';
+
 interface LoadingScreenProps {
   error: { show: boolean; message: string };
+  hideError: () => void;
 }
 
-const LoadingScreen = ({ error }: LoadingScreenProps) => {
+const LoadingScreen = ({ error, hideError }: LoadingScreenProps) => {
   return (
-    <>
-      <div className="tab-menu">Loading...</div>
-      <div className={error.show ? 'error-show' : 'error-hidden'}>
-        {error.message}
-      </div>
-    </>
+    <div className="screen">
+      <div className="loading"></div>
+      <Error error={error} hideError={hideError} />
+    </div>
   );
 };
 

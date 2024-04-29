@@ -7,6 +7,7 @@
   font-style: normal;
   font-variation-settings: 'slnt' 0;
 
+  overflow: hidden;
   background: #202020;
   color: white;
   height: 500px;
@@ -19,8 +20,79 @@
   box-shadow: 6px 4px 10px black;
 }
 
+.clicks-to-x .screen {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.clicks-to-x .error {
+  background: #802020;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 1em;
+  box-sizing: border-box;
+  font-size: 0.8em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: bottom 0.3s ease;
+}
+
+.clicks-to-x .error .message {
+  max-height: 8.5em;
+  overflow-y: auto;
+}
+
+.clicks-to-x .error .close {
+  margin-left: 1em;
+  cursor: pointer;
+  color: transparent;
+  text-shadow: 0 0 0 white;
+}
+
+.clicks-to-x .error.hidden {
+  bottom: -8.5em;
+}
+
+.clicks-to-x .loading {
+  width: 60px;
+  aspect-ratio: 4;
+  background:
+    no-repeat radial-gradient(circle closest-side, #fff 90%, #fff0) 0% 50%,
+    no-repeat radial-gradient(circle closest-side, #fff 90%, #fff0) 50% 50%,
+    no-repeat radial-gradient(circle closest-side, #fff 90%, #fff0) 100% 50%;
+  background-size: calc(100% / 3) 100%;
+  animation: loading-anim 1s infinite linear;
+}
+@keyframes loading-anim {
+  33% {
+    background-size:
+      calc(100% / 3) 0%,
+      calc(100% / 3) 100%,
+      calc(100% / 3) 100%;
+  }
+  50% {
+    background-size:
+      calc(100% / 3) 100%,
+      calc(100% / 3) 0%,
+      calc(100% / 3) 100%;
+  }
+  66% {
+    background-size:
+      calc(100% / 3) 100%,
+      calc(100% / 3) 100%,
+      calc(100% / 3) 0%;
+  }
+}
+
 .clicks-to-x .tab-menu {
   display: flex;
+  width: 100%;
   align-items: center;
   background: #909090;
   gap: 1px;
@@ -54,6 +126,7 @@
 }
 
 .clicks-to-x .tab-content {
+  flex-grow: 1;
   padding: 1em;
 }
 

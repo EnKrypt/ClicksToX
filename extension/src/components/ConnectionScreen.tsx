@@ -1,15 +1,18 @@
 import { useState } from 'react';
+import Error from './Error';
 
 interface ConnectionScreenProps {
   createLobby: (url: string, alias: string, roundTimeLimit: string) => void;
   joinLobby: (url: string, alias: string, lobbyCode: string) => void;
   error: { show: boolean; message: string };
+  hideError: () => void;
 }
 
 const ConnectionScreen = ({
   createLobby,
   joinLobby,
   error,
+  hideError,
 }: ConnectionScreenProps) => {
   const [activeTab, setActiveTab] = useState('join'); // 'join' or 'create'
   const [url, setUrl] = useState('');
@@ -18,7 +21,7 @@ const ConnectionScreen = ({
   const [roundTimeLimit, setRoundTimeLimit] = useState('300');
 
   return (
-    <>
+    <div className="screen">
       <div className="tab-menu">
         <div
           onClick={() => setActiveTab('join')}
@@ -110,10 +113,8 @@ const ConnectionScreen = ({
           </div>
         )}
       </div>
-      <div className={error.show ? 'error-show' : 'error-hidden'}>
-        {error.message}
-      </div>
-    </>
+      <Error error={error} hideError={hideError} />
+    </div>
   );
 };
 

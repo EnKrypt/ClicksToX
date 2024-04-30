@@ -1,5 +1,3 @@
-import { type WebSocket } from 'ws';
-
 export enum STAGE {
   DISCONNECTED,
   WAITING_FOR_PLAYERS_TO_JOIN,

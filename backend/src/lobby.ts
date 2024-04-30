@@ -82,10 +82,27 @@ export const broadcastPlayerListing = ({
     logger.warn('Cannot broadcast player listing to nonexistent lobby');
     return;
   }
-  broadcastToLobbyPlayers({
-    message: `PLAYERS ${lobby.code} ${lobby.state.timer} ${lobby.players.map((player) => player.alias).join(',')}`,
-    code,
-  });
+  for (const broadcastingPlayer of lobby.players) {
+    broadcastingPlayer.connection.send(
+      `PLAYERS ${lobby.code} ${lobby.state.timer} ${lobby.players
+        .map((player) => {
+          if (
+            player.isCreator &&
+            player.connection === broadcastingPlayer.connection
+          ) {
+            return `~${player.alias}`;
+          }
+          if (player.isCreator) {
+            return `!${player.alias}`;
+          }
+          if (player.connection === broadcastingPlayer.connection) {
+            return `@${player.alias}`;
+          }
+          return player.alias;
+        })
+        .join(',')}`
+    );
+  }
 };
 
 interface StartGameRequest {

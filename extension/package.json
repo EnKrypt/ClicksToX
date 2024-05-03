@@ -9,6 +9,7 @@
   "scripts": {
     "clean": "rm -rf node_modules/ dist/",
     "build": "sh build-all.sh",
+    "dev": "nodemon --config nodemon.json src/main.tsx src/background.ts",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "prettier": {
@@ -22,7 +23,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/firefox-webext-browser": "^120.0.3",
+    "@types/chrome": "^0.0.267",
     "@types/node": "^20.12.7",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
@@ -32,6 +33,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "nodemon": "^3.1.0",
     "prettier": "^3.2.5",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"

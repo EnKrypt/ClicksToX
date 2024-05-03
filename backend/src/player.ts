@@ -91,6 +91,11 @@ export const addPlayerToLobby = ({
   });
   clientToLobbyMapping.set(client, lobby);
   broadcastPlayerListing({ code: lobby.code });
+  for (const player of lobby.players) {
+    if (player.submission) {
+      client.send(`SUBMIT ${player.alias} ${player.submission}`);
+    }
+  }
 };
 
 interface RemovePlayerRequest {
@@ -100,7 +105,7 @@ interface RemovePlayerRequest {
 
 export const removePlayer = ({ client, request }: RemovePlayerRequest) => {
   logger.verbose(
-    `Removing client with IP: ${request.socket.address}, X-Forwarded-For: ${(request.headers['x-forwarded-for'] as string).split(',')[0].trim()}`
+    `Removing client with IP: ${request.socket.address}, X-Forwarded-For: ${(request.headers['x-forwarded-for'] as string | undefined)?.split(',')[0].trim()}`
   );
 
   const lobby = clientToLobbyMapping.get(client);

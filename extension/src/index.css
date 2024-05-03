@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
 
 .clicks-to-x {
   font-family: 'Inter', sans-serif;
@@ -29,6 +30,19 @@
   flex-direction: column;
 }
 
+.clicks-to-x .clickable {
+  cursor: pointer;
+}
+
+.clicks-to-x .code {
+  background: #404060;
+  font-family: 'PT Mono', monospace;
+  font-weight: 400;
+  font-style: normal;
+  padding: 0.1em 0.2em;
+  border-radius: 0.2em;
+}
+
 .clicks-to-x .error {
   background: #802020;
   position: absolute;
@@ -50,7 +64,6 @@
 
 .clicks-to-x .error .close {
   margin-left: 1em;
-  cursor: pointer;
   color: transparent;
   text-shadow: 0 0 0 white;
 }
@@ -155,7 +168,7 @@
   border-color: #777;
 }
 
-.clicks-to-x .tab-content button {
+.clicks-to-x button {
   display: block;
   color: white;
   margin: 1em auto;
@@ -163,14 +176,91 @@
   border: none;
   padding: 0.5em 1em;
   font-size: 1em;
-  width: 50%;
+  min-width: 50%;
   transition: background-color 0.3s ease;
 }
 
-.clicks-to-x .tab-content button:hover {
+.clicks-to-x button:hover {
   background: #404040;
 }
 
-.clicks-to-x .tab-content button:active {
+.clicks-to-x button:active {
   background: #202020;
+}
+
+.clicks-to-x .lobby-info {
+  padding: 1em;
+  flex-grow: 1;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.clicks-to-x .lobby-code {
+  margin: 0.5em 0;
+  font-size: 1.3em;
+  text-align: center;
+}
+
+.clicks-to-x .timer {
+  color: #ffa0a0;
+  text-align: center;
+  font-size: 2em;
+}
+
+.clicks-to-x .players {
+  background: #404050;
+  padding: 0.3em;
+  border-radius: 0.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.clicks-to-x .player {
+  display: flex;
+  align-items: center;
+}
+
+.clicks-to-x .player .is-creator {
+  flex-basis: 8%;
+}
+
+.clicks-to-x .player .alias {
+  flex-basis: 25%;
+  font-size: 0.9em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.clicks-to-x .player .submission {
+  flex-basis: 67%;
+  display: flex;
+  align-items: center;
+  gap: 0.2em;
+}
+
+.clicks-to-x .player .submission input {
+  background: #303030;
+  border: 1px solid #505050;
+  color: #c0c0c0;
+  padding: 0.5em 1em;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.clicks-to-x .player .submission input:disabled {
+  background: #454545;
+}
+
+.clicks-to-x .player .submission button {
+  min-width: unset;
+  font-size: 0.8em;
+  margin: unset;
+}
+
+.clicks-to-x .no-action-message {
+  padding: 1em;
+  margin-top: 1em;
+  background: #402020;
 }

@@ -8,21 +8,20 @@ export enum STAGE {
 export interface State {
   stage: STAGE;
   timer: number;
-  source: URL | undefined;
-  destination: URL | undefined;
-  connection: WebSocket | undefined;
+  source: string | undefined;
+  destination: string | undefined;
   players: Array<{
     isSelf: boolean;
     isCreator: boolean;
     alias: string;
-    submission: URL | undefined;
+    submission: string | undefined;
     tree: Node | undefined;
   }>;
   code: string;
 }
 
 export interface Node {
-  article: URL;
+  article: string;
   when: Date;
   children: Node[];
 }
@@ -32,7 +31,6 @@ export const initialGameState: State = {
   timer: 0,
   source: undefined,
   destination: undefined,
-  connection: undefined,
   players: [],
   code: '',
 };

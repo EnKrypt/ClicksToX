@@ -2,7 +2,7 @@ import { type State, initialGameState, STAGE } from './types';
 
 let connection: WebSocket | undefined;
 let gameState: State = JSON.parse(JSON.stringify(initialGameState));
-let app: browser.runtime.Port | undefined;
+let app: chrome.runtime.Port | undefined;
 
 const resetGameState = () => {
   gameState = JSON.parse(JSON.stringify(initialGameState));
@@ -27,7 +27,6 @@ const connect = (url: string, callback: () => void) => {
   });
 
   connection.addEventListener('open', () => {
-    gameState.connection = connection;
     callback();
   });
 
@@ -45,16 +44,35 @@ const connect = (url: string, callback: () => void) => {
         gameState.timer = Number(commands[2] as string);
         gameState.code = commands[1] as string;
         const playerNames = (commands[3] as string).split(',');
-        gameState.players = playerNames.map((name) => ({
-          isSelf: name[0] === '~' || name[0] === '@',
-          isCreator: name[0] === '~' || name[0] === '!',
-          alias:
-            name[0] === '~' || name[0] === '!' || name[0] === '@'
-              ? name.substring(1)
-              : name,
-          submission: undefined,
-          tree: undefined,
-        }));
+        // Populate the player list in the game state
+        gameState.players = playerNames
+          .map((name) => ({
+            isSelf: name[0] === '~' || name[0] === '@',
+            isCreator: name[0] === '~' || name[0] === '!',
+            alias:
+              name[0] === '~' || name[0] === '!' || name[0] === '@'
+                ? name.substring(1)
+                : name,
+            submission: undefined,
+            tree: undefined,
+          }))
+          // Bring the current player to the top of the player list
+          .sort((playerA) => {
+            if (playerA.isSelf) {
+              return -1;
+            }
+            return 0;
+          });
+        app?.postMessage({ state: gameState });
+        break;
+      }
+      case 'SUBMIT': {
+        const player = gameState.players.find(
+          (player) => player.alias === commands[1]
+        );
+        if (player) {
+          player.submission = commands[2];
+        }
         app?.postMessage({ state: gameState });
         break;
       }
@@ -73,7 +91,7 @@ interface Message {
   command: string;
 }
 
-browser.runtime.onConnect.addListener((port) => {
+chrome.runtime.onConnect.addListener((port) => {
   app = port;
   if (app.name === 'clicks-to-x') {
     app.postMessage({ state: gameState });
@@ -87,7 +105,7 @@ browser.runtime.onConnect.addListener((port) => {
           sendCommand((response as Message).command);
         } else {
           console.error(
-            'ClicksToX: Received message does not contain `command` property'
+            'ClicksToX: Connection to game server not yet established'
           );
         }
       } else {

@@ -1,13 +1,24 @@
 import { useEffect, useState } from 'react';
 import ConnectionScreen from './components/ConnectionScreen';
-import { STAGE, initialGameState, type State } from './types';
 import LoadingScreen from './components/LoadingScreen';
+import WaitingForPlayersScreen from './components/WaitingForPlayersScreen';
+import { STAGE, initialGameState, type State } from './types';
 
 const App = () => {
+  /* The `gameState` state variable is very important here.
+   * We are going to use the game state itself as the main way
+   * to receive communications from the background script and
+   * by extension, the game server.
+   * This app wil react differently according to the state of
+   * the game, and that will be enough to play the entire game.
+   *
+   * Now you know why it's called 'React'. It was built around
+   * this principle of state handling.
+   */
   const [gameState, setGameState] = useState<State>(
     JSON.parse(JSON.stringify(initialGameState))
   );
-  const [port, setPort] = useState<browser.runtime.Port | undefined>(undefined);
+  const [port, setPort] = useState<chrome.runtime.Port | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<{
     show: boolean;
@@ -38,8 +49,16 @@ const App = () => {
     port?.postMessage({ url, command: `JOIN ${alias} ${lobbyCode}` });
   };
 
+  const submitDestination = (submission: string) => {
+    if (!submission) {
+      showError('Field cannot be blank');
+      return;
+    }
+    port?.postMessage({ command: `SUBMIT ${submission}` });
+  };
+
   useEffect(() => {
-    const port = browser.runtime.connect({ name: 'clicks-to-x' });
+    const port = chrome.runtime.connect({ name: 'clicks-to-x' });
     setPort(port);
     setLoading(false);
     port.onMessage.addListener((message) => {
@@ -61,6 +80,15 @@ const App = () => {
         <ConnectionScreen
           createLobby={createLobby}
           joinLobby={joinLobby}
+          error={error}
+          hideError={hideError}
+        />
+      );
+    case STAGE.WAITING_FOR_PLAYERS_TO_JOIN:
+      return (
+        <WaitingForPlayersScreen
+          gameState={gameState}
+          submitDestination={submitDestination}
           error={error}
           hideError={hideError}
         />

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { State } from '../types';
 import Error from './Error';
+import { getArticleSlug } from '../utils';
 
 interface WaitingForPlayersScreenProps {
   gameState: State;
   submitDestination: (submission: string) => void;
+  endSubmission: () => void;
   error: { show: boolean; message: string };
   hideError: () => void;
 }
@@ -12,6 +14,7 @@ interface WaitingForPlayersScreenProps {
 const WaitingForPlayersScreen = ({
   gameState,
   submitDestination,
+  endSubmission,
   error,
   hideError,
 }: WaitingForPlayersScreenProps) => {
@@ -59,7 +62,7 @@ const WaitingForPlayersScreen = ({
                     player.isSelf
                       ? submission
                       : player.submission
-                        ? new URL(player.submission).pathname
+                        ? getArticleSlug(new URL(player.submission))
                         : ''
                   }
                   disabled={player.isSelf ? false : true}
@@ -83,7 +86,13 @@ const WaitingForPlayersScreen = ({
           ))}
         </div>
         {currentPlayer?.isCreator ? (
-          <button onClick={() => {}}>End Submission Phase</button>
+          <button
+            onClick={() => {
+              endSubmission();
+            }}
+          >
+            End Submission Phase
+          </button>
         ) : (
           <div className="no-action-message">
             Waiting for lobby creator to end submission phase

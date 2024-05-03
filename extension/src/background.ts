@@ -76,6 +76,20 @@ const connect = (url: string, callback: () => void) => {
         app?.postMessage({ state: gameState });
         break;
       }
+      case 'PLAYING': {
+        gameState.stage = STAGE.PLAYING;
+        gameState.source = commands[1];
+        gameState.destination = commands[2];
+        app?.postMessage({ state: gameState });
+        chrome.tabs.create({ url: commands[1] });
+        chrome.tabs.create({ url: commands[2] });
+        break;
+      }
+      case 'TIMER': {
+        gameState.timer = Number(commands[1] as string);
+        app?.postMessage({ state: gameState });
+        break;
+      }
       default:
         break;
     }

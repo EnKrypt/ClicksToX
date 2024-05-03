@@ -240,6 +240,10 @@
   gap: 0.2em;
 }
 
+.clicks-to-x .player .status {
+  flex-basis: 67%;
+}
+
 .clicks-to-x .player .submission input {
   background: #303030;
   border: 1px solid #505050;
@@ -263,4 +267,29 @@
   padding: 1em;
   margin-top: 1em;
   background: #402020;
+}
+
+.clicks-to-x .links {
+  padding: 1em 0;
+}
+
+.clicks-to-x .links .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25em 0;
+}
+
+.clicks-to-x .links .row .label {
+  flex-basis: 30%;
+}
+
+.clicks-to-x .links .row .link {
+  flex-basis: 65%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.clicks-to-x .links .row .copy {
+  flex-basis: 5%;
 }

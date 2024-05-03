@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import ConnectionScreen from './components/ConnectionScreen';
 import LoadingScreen from './components/LoadingScreen';
+import PlayingScreen from './components/PlayingScreen';
 import WaitingForPlayersScreen from './components/WaitingForPlayersScreen';
 import { STAGE, initialGameState, type State } from './types';
 
@@ -57,6 +58,10 @@ const App = () => {
     port?.postMessage({ command: `SUBMIT ${submission}` });
   };
 
+  const endSubmission = () => {
+    port?.postMessage({ command: `END_SUBMISSION` });
+  };
+
   useEffect(() => {
     const port = chrome.runtime.connect({ name: 'clicks-to-x' });
     setPort(port);
@@ -89,6 +94,15 @@ const App = () => {
         <WaitingForPlayersScreen
           gameState={gameState}
           submitDestination={submitDestination}
+          endSubmission={endSubmission}
+          error={error}
+          hideError={hideError}
+        />
+      );
+    case STAGE.PLAYING:
+      return (
+        <PlayingScreen
+          gameState={gameState}
           error={error}
           hideError={hideError}
         />

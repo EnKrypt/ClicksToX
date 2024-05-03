@@ -14,6 +14,8 @@ export interface Lobby {
     connection: WebSocket;
     submission: URL | undefined;
     tree: Node | undefined;
+    visitCount: number;
+    shortestClickCount: number;
   }>;
   roundTimeLimit: number;
   code: string;

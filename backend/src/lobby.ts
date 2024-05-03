@@ -121,6 +121,10 @@ export const startGame = ({ lobby }: StartGameRequest) => {
       endGame({ lobby });
     }
     lobby.state.timer = lobby.state.timer - 1;
+    broadcastToLobbyPlayers({
+      message: `TIMER ${lobby.state.timer}`,
+      code: lobby.code,
+    });
   }, 1000);
 };
 
@@ -132,18 +136,11 @@ const endGame = ({ lobby }: EndGameRequest) => {
   lobby.state.stage = STAGE.FINISHED;
   const shortestPath = { count: Infinity, alias: '' };
   for (const player of lobby.players) {
-    const shortestCountOfPlayer = player.tree
-      ? shortestPathInTree({
-          count: -1,
-          destinationPathname: lobby.state.destination?.pathname as string,
-          tree: player.tree.children,
-        })
-      : -1;
     if (
-      shortestCountOfPlayer !== -1 &&
-      shortestCountOfPlayer < shortestPath.count
+      player.shortestClickCount !== -1 &&
+      player.shortestClickCount < shortestPath.count
     ) {
-      shortestPath.count = shortestCountOfPlayer;
+      shortestPath.count = player.shortestClickCount;
       shortestPath.alias = player.alias;
     }
   }
@@ -167,7 +164,7 @@ interface ShortestPathInTreeRequest {
   tree: Node[];
 }
 
-const shortestPathInTree = ({
+export const shortestPathInTree = ({
   count,
   destinationPathname,
   tree,

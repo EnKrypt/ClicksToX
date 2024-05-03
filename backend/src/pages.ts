@@ -1,7 +1,11 @@
 import { type WebSocket } from 'ws';
 import config from './config.js';
 import { clientToLobbyMapping } from './index.js';
-import { broadcastToLobbyPlayers, startGame } from './lobby.js';
+import {
+  broadcastToLobbyPlayers,
+  shortestPathInTree,
+  startGame,
+} from './lobby.js';
 import { handlePlayerError, logger } from './logging.js';
 import { Lobby, Node } from './types.js';
 
@@ -81,6 +85,14 @@ export const endSubmission = async ({ client }: EndSubmissionRequest) => {
     });
     return false;
   }
+  if (lobby.players.length < 2) {
+    handlePlayerError({
+      eventDescription: 'Could not end submission stage for lobby',
+      reasonShownToPlayer: 'Cannot start a game without at least two players',
+      client,
+    });
+    return false;
+  }
 
   // Now we set the source and destination pages before starting the game
   await setPages({ lobby });
@@ -148,11 +160,39 @@ export const visitPage = ({ client, parent, visited }: VisitPageRequest) => {
     });
     return false;
   }
+  for (const node of parentNode.children) {
+    if (node.article.pathname === visited) {
+      // Node already exists, we don't need to add it to the tree
+      return;
+    }
+  }
   parentNode.children.push({
     article: new URL(`https://${config.wikipediaHost}${visited}`),
     when: new Date(),
     children: [],
   });
+  player.visitCount = player.visitCount + 1;
+  broadcastToLobbyPlayers({
+    message: `VISIT_COUNT ${player.alias} ${player.visitCount}`,
+    code: lobby.code,
+  });
+
+  // If this is the destination page, then calculate click count
+  if (visited === lobby.state.destination?.pathname) {
+    const clickCount = player.tree
+      ? shortestPathInTree({
+          count: -1,
+          destinationPathname: lobby.state.destination.pathname,
+          tree: player.tree.children,
+        })
+      : -1;
+    if (
+      player.shortestClickCount !== -1 &&
+      clickCount < player.shortestClickCount
+    ) {
+      player.shortestClickCount = clickCount;
+    }
+  }
 };
 
 interface FindNodeInTreeRequest {

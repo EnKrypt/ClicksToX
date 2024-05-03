@@ -88,6 +88,8 @@ export const addPlayerToLobby = ({
     connection: client,
     submission: undefined,
     tree: undefined,
+    visitCount: 0,
+    shortestClickCount: -1,
   });
   clientToLobbyMapping.set(client, lobby);
   broadcastPlayerListing({ code: lobby.code });
@@ -105,7 +107,7 @@ interface RemovePlayerRequest {
 
 export const removePlayer = ({ client, request }: RemovePlayerRequest) => {
   logger.verbose(
-    `Removing client with IP: ${request.socket.address}, X-Forwarded-For: ${(request.headers['x-forwarded-for'] as string | undefined)?.split(',')[0].trim()}`
+    `Removing client with IP: ${request.socket.address()}, X-Forwarded-For: ${(request.headers['x-forwarded-for'] as string | undefined)?.split(',')[0].trim()}`
   );
 
   const lobby = clientToLobbyMapping.get(client);

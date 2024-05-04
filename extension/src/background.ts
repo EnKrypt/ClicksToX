@@ -55,6 +55,8 @@ const connect = (url: string, callback: () => void) => {
                 : name,
             submission: undefined,
             tree: undefined,
+            visitCount: 0,
+            clickCount: -1,
           }))
           // Bring the current player to the top of the player list
           .sort((playerA) => {
@@ -87,6 +89,26 @@ const connect = (url: string, callback: () => void) => {
       }
       case 'TIMER': {
         gameState.timer = Number(commands[1] as string);
+        app?.postMessage({ state: gameState });
+        break;
+      }
+      case 'VISIT_COUNT': {
+        for (const player of gameState.players) {
+          if (player.alias === commands[1]) {
+            player.visitCount = Number(commands[2] as string);
+            break;
+          }
+        }
+        app?.postMessage({ state: gameState });
+        break;
+      }
+      case 'NEW_CLICK_COUNT': {
+        for (const player of gameState.players) {
+          if (player.alias === commands[1]) {
+            player.clickCount = Number(commands[2] as string);
+            break;
+          }
+        }
         app?.postMessage({ state: gameState });
         break;
       }

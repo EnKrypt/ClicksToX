@@ -16,6 +16,8 @@ export interface State {
     alias: string;
     submission: string | undefined;
     tree: Node | undefined;
+    visitCount: number;
+    clickCount: number;
   }>;
   code: string;
 }

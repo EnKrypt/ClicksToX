@@ -66,7 +66,12 @@ const PlayingScreen = ({ gameState, error, hideError }: PlayingScreenProps) => {
             <div className="player" key={player.alias}>
               <div className="is-creator">{player.isCreator ? '👑' : ''}</div>
               <div className="alias">{player.alias}</div>
-              <div className="status"></div>
+              <div className="player-info">
+                <div className="status">{player.clickCount ? '🏁' : ''}</div>
+                <div className="visit-count">
+                  {player.visitCount} articles visited
+                </div>
+              </div>
             </div>
           ))}
         </div>

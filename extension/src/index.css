@@ -240,8 +240,11 @@
   gap: 0.2em;
 }
 
-.clicks-to-x .player .status {
+.clicks-to-x .player .player-info {
   flex-basis: 67%;
+  display: flex;
+  align-items: center;
+  gap: 0.2em;
 }
 
 .clicks-to-x .player .submission input {

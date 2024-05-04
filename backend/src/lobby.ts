@@ -122,7 +122,7 @@ export const startGame = ({ lobby }: StartGameRequest) => {
     }
     lobby.state.timer = lobby.state.timer - 1;
     broadcastToLobbyPlayers({
-      message: `TIMER ${lobby.state.timer}`,
+      message: `TIMER ${lobby.state.timer + 1}`,
       code: lobby.code,
     });
   }, 1000);
@@ -134,14 +134,18 @@ interface EndGameRequest {
 
 const endGame = ({ lobby }: EndGameRequest) => {
   lobby.state.stage = STAGE.FINISHED;
-  const shortestPath = { count: Infinity, alias: '' };
+  const shortestPath = { count: Infinity, alias: '', when: new Date() };
   for (const player of lobby.players) {
     if (
-      player.shortestClickCount !== -1 &&
-      player.shortestClickCount < shortestPath.count
+      (player.shortestClickCount.count !== -1 &&
+        player.shortestClickCount.count < shortestPath.count) ||
+      (player.shortestClickCount.count !== -1 &&
+        player.shortestClickCount.count === shortestPath.count &&
+        player.shortestClickCount.when < shortestPath.when)
     ) {
-      shortestPath.count = player.shortestClickCount;
+      shortestPath.count = player.shortestClickCount.count;
       shortestPath.alias = player.alias;
+      shortestPath.when = player.shortestClickCount.when;
     }
   }
   if (shortestPath.alias) {
@@ -227,7 +231,7 @@ export const resetLobby = ({ client }: ResetLobbyRequest) => {
     handlePlayerError({
       eventDescription: 'Could not reset lobby for a new game',
       reasonShownToPlayer:
-        'Only the lobby creator can reset the lobby for a new game',
+        'Only the lobby leader can reset the lobby for a new game',
       client,
     });
     return false;

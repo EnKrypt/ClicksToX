@@ -80,7 +80,7 @@ export const endSubmission = async ({ client }: EndSubmissionRequest) => {
   if (!player.isCreator) {
     handlePlayerError({
       eventDescription: 'Could not end submission stage for lobby',
-      reasonShownToPlayer: 'Only the lobby creator can end submission stage',
+      reasonShownToPlayer: 'Only the lobby leader can end submission stage',
       client,
     });
     return false;
@@ -187,12 +187,14 @@ export const visitPage = ({ client, parent, visited }: VisitPageRequest) => {
         })
       : -1;
     if (
-      player.shortestClickCount !== -1 &&
-      clickCount < player.shortestClickCount
+      player.shortestClickCount.count === -1 ||
+      clickCount < player.shortestClickCount.count
     ) {
-      player.shortestClickCount = clickCount;
+      const when = new Date();
+      player.shortestClickCount.count = clickCount;
+      player.shortestClickCount.when = when;
       broadcastToLobbyPlayers({
-        message: `NEW_CLICK_COUNT ${player.alias} ${clickCount}`,
+        message: `NEW_CLICK_COUNT ${player.alias} ${clickCount} ${when}`,
         code: lobby.code,
       });
     }

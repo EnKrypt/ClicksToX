@@ -15,7 +15,10 @@ export interface Lobby {
     submission: URL | undefined;
     tree: Node | undefined;
     visitCount: number;
-    shortestClickCount: number;
+    shortestClickCount: {
+      count: number;
+      when: Date;
+    };
   }>;
   roundTimeLimit: number;
   code: string;

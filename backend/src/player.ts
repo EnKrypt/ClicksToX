@@ -89,7 +89,7 @@ export const addPlayerToLobby = ({
     submission: undefined,
     tree: undefined,
     visitCount: 0,
-    shortestClickCount: -1,
+    shortestClickCount: { count: -1, when: new Date() },
   });
   clientToLobbyMapping.set(client, lobby);
   broadcastPlayerListing({ code: lobby.code });
@@ -112,8 +112,12 @@ export const removePlayer = ({ client, request }: RemovePlayerRequest) => {
 
   const lobby = clientToLobbyMapping.get(client);
   if (lobby) {
+    let wasLobbyLeader = false;
     lobby.players = lobby.players.filter((player) => {
       if (player.connection === client) {
+        if (player.isCreator) {
+          wasLobbyLeader = true;
+        }
         logger.verbose(
           `Removing player '${player.alias}' from lobby '${lobby.code}'`
         );
@@ -128,6 +132,9 @@ export const removePlayer = ({ client, request }: RemovePlayerRequest) => {
       );
       codeToLobbyMapping.delete(lobby.code);
     } else {
+      if (wasLobbyLeader) {
+        lobby.players[0].isCreator = true;
+      }
       broadcastPlayerListing({ code: lobby.code });
     }
 

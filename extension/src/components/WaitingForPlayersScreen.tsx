@@ -95,7 +95,7 @@ const WaitingForPlayersScreen = ({
           </button>
         ) : (
           <div className="no-action-message">
-            Waiting for lobby creator to end submission phase
+            Waiting for lobby leader to end submission phase
           </div>
         )}
       </div>

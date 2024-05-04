@@ -195,6 +195,13 @@
   box-sizing: border-box;
 }
 
+.clicks-to-x .lobby-info.path-found {
+  background: #202060;
+}
+.clicks-to-x .lobby-info.path-found.shortest-path-found {
+  background: #206020;
+}
+
 .clicks-to-x .lobby-code {
   margin: 0.5em 0;
   font-size: 1.3em;

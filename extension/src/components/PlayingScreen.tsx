@@ -16,13 +16,49 @@ const PlayingScreen = ({ gameState, error, hideError }: PlayingScreenProps) => {
   const destination = gameState.destination
     ? new URL(gameState.destination)
     : undefined;
+  const currentPlayer = gameState.players[0].isSelf
+    ? gameState.players[0]
+    : undefined;
+  const pathFound = currentPlayer?.shortestClickCount.count !== -1;
+  /* We decide that the current player has found the shortest path in the game, if
+   * 1. The player has already found a complete path from source to destination
+   * AND
+   * 2. For every player in the lobby, if the player
+   *    2.1 Is not the same as the current player
+   *    OR
+   *    2.2 Has a bigger shortest click count than current player
+   *    OR
+   *    2.3 Has the same shortest click count as current player
+   *    AND
+   *    2.4 Reached the shortest click count after the current player
+   */
+  const shortestPathFound = pathFound
+    ? gameState.players.every(
+        (player) =>
+          currentPlayer?.alias !== player.alias ||
+          currentPlayer?.shortestClickCount.count <
+            player.shortestClickCount.count ||
+          (currentPlayer?.shortestClickCount.count ===
+            player.shortestClickCount.count &&
+            currentPlayer.shortestClickCount.when <
+              player.shortestClickCount.when)
+      )
+    : false;
 
   const [sourceCopied, setSourceCopied] = useState<boolean>(false);
   const [destinationCopied, setDestinationCopied] = useState<boolean>(false);
 
   return (
     <div className="screen">
-      <div className="lobby-info">
+      <div
+        className={[
+          'lobby-info',
+          pathFound ? 'path-found' : '',
+          shortestPathFound ? 'shortest-path-found' : '',
+        ]
+          .join(' ')
+          .trim()}
+      >
         <div className="timer">
           {timerMinutes}:{timerSeconds < 10 ? '0' : ''}
           {timerSeconds}
@@ -44,7 +80,7 @@ const PlayingScreen = ({ gameState, error, hideError }: PlayingScreenProps) => {
               {sourceCopied ? '✔️' : '📋'}
             </div>
           </div>
-          <div className="destination">
+          <div className="row">
             <div className="label">Destination: </div>
             <div className="link">{getArticleSlug(destination)}</div>
             <div
@@ -67,7 +103,9 @@ const PlayingScreen = ({ gameState, error, hideError }: PlayingScreenProps) => {
               <div className="is-creator">{player.isCreator ? '👑' : ''}</div>
               <div className="alias">{player.alias}</div>
               <div className="player-info">
-                <div className="status">{player.clickCount ? '🏁' : ''}</div>
+                <div className="status">
+                  {player.shortestClickCount.count !== -1 ? '🏁' : ''}
+                </div>
                 <div className="visit-count">
                   {player.visitCount} articles visited
                 </div>

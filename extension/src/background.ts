@@ -56,7 +56,7 @@ const connect = (url: string, callback: () => void) => {
             submission: undefined,
             tree: undefined,
             visitCount: 0,
-            clickCount: -1,
+            shortestClickCount: { count: -1, when: new Date() },
           }))
           // Bring the current player to the top of the player list
           .sort((playerA) => {
@@ -105,7 +105,10 @@ const connect = (url: string, callback: () => void) => {
       case 'NEW_CLICK_COUNT': {
         for (const player of gameState.players) {
           if (player.alias === commands[1]) {
-            player.clickCount = Number(commands[2] as string);
+            player.shortestClickCount = {
+              count: Number(commands[2] as string),
+              when: new Date(Number(commands[3] as string)),
+            };
             break;
           }
         }

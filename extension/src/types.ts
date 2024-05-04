@@ -17,7 +17,10 @@ export interface State {
     submission: string | undefined;
     tree: Node | undefined;
     visitCount: number;
-    clickCount: number;
+    shortestClickCount: {
+      count: number;
+      when: Date;
+    };
   }>;
   code: string;
 }

@@ -25,6 +25,7 @@ const WaitingForPlayersScreen = ({
     : undefined;
 
   const [copied, setCopied] = useState<boolean>(false);
+  const [submitted, setSubmitted] = useState<boolean>(false);
   const [submission, setSubmission] = useState<string>('');
 
   return (
@@ -76,9 +77,13 @@ const WaitingForPlayersScreen = ({
                   <button
                     onClick={() => {
                       submitDestination(submission);
+                      setSubmitted(true);
+                      setTimeout(() => {
+                        setSubmitted(false);
+                      }, 1000);
                     }}
                   >
-                    Submit
+                    {submitted ? '✔️' : 'Submit'}
                   </button>
                 ) : null}
               </div>

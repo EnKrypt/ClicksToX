@@ -84,7 +84,6 @@ const connect = (url: string, callback: () => void) => {
         gameState.destination = commands[2];
         app?.postMessage({ state: gameState });
         chrome.tabs.create({ url: commands[1] });
-        chrome.tabs.create({ url: commands[2] });
         break;
       }
       case 'TIMER': {

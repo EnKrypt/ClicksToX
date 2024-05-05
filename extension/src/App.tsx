@@ -4,6 +4,7 @@ import LoadingScreen from './components/LoadingScreen';
 import PlayingScreen from './components/PlayingScreen';
 import WaitingForPlayersScreen from './components/WaitingForPlayersScreen';
 import { STAGE, initialGameState, type State } from './types';
+import { isWikipediaArticle } from './utils';
 
 const App = () => {
   /* The `gameState` state variable is very important here.
@@ -71,6 +72,19 @@ const App = () => {
         showError(message.error as string);
       } else if ('state' in message) {
         setGameState(message.state as State);
+      }
+    });
+
+    document.addEventListener('mousedown', (event) => {
+      const element = event.target as HTMLAnchorElement;
+      if (element.tagName === 'A') {
+        const fromArticle = new URL(window.location.href);
+        const toArticle = new URL(element.href);
+        if (isWikipediaArticle(toArticle.href)) {
+          port?.postMessage({
+            command: `VISIT ${fromArticle.pathname} ${toArticle.pathname}`,
+          });
+        }
       }
     });
   }, []);

@@ -19,5 +19,9 @@
       "matches": ["<all_urls>"],
       "js": ["dist/index.cjs"]
     }
+  ],
+
+  "permissions": [
+    "tabs"
   ]
 }

@@ -111,12 +111,19 @@ interface StartGameRequest {
 
 export const startGame = ({ lobby }: StartGameRequest) => {
   lobby.state.stage = STAGE.PLAYING;
+  for (const player of lobby.players) {
+    player.tree = {
+      article: new URL(lobby.state.source ?? ''),
+      when: new Date(),
+      children: [],
+    };
+  }
   broadcastToLobbyPlayers({
     message: `PLAYING ${lobby.state.source} ${lobby.state.destination}`,
     code: lobby.code,
   });
   const intervalId = setInterval(() => {
-    if (lobby.state.timer === 0) {
+    if (lobby.state.timer === 0 || !codeToLobbyMapping.get(lobby.code)) {
       clearTimeout(intervalId);
       endGame({ lobby });
     }

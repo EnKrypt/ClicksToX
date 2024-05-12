@@ -4,12 +4,20 @@ import Error from './Error';
 import { getArticleSlug } from '../utils';
 
 interface PlayingScreenProps {
+  finished: boolean;
+  resetLobby: () => void;
   gameState: State;
   error: { show: boolean; message: string };
   hideError: () => void;
 }
 
-const PlayingScreen = ({ gameState, error, hideError }: PlayingScreenProps) => {
+const PlayingScreen = ({
+  finished,
+  resetLobby,
+  gameState,
+  error,
+  hideError,
+}: PlayingScreenProps) => {
   const timerMinutes = Math.trunc(gameState.timer / 60);
   const timerSeconds = gameState.timer % 60;
   const source = gameState.source ? new URL(gameState.source) : undefined;
@@ -45,6 +53,27 @@ const PlayingScreen = ({ gameState, error, hideError }: PlayingScreenProps) => {
       )
     : false;
 
+  // Calculate winner if the game is over
+  const winner = {
+    count: Infinity,
+    when: new Date(),
+    alias: '',
+  };
+  if (finished) {
+    for (const player of gameState.players) {
+      if (
+        player.shortestClickCount.count !== -1 &&
+        (player.shortestClickCount.count < winner.count ||
+          (player.shortestClickCount.count === winner.count &&
+            player.shortestClickCount.when < winner.when))
+      ) {
+        winner.alias = player.alias;
+        winner.count = player.shortestClickCount.count;
+        winner.when = player.shortestClickCount.when;
+      }
+    }
+  }
+
   const [sourceCopied, setSourceCopied] = useState<boolean>(false);
   const [destinationCopied, setDestinationCopied] = useState<boolean>(false);
 
@@ -55,6 +84,7 @@ const PlayingScreen = ({ gameState, error, hideError }: PlayingScreenProps) => {
           'lobby-info',
           pathFound ? 'path-found' : '',
           shortestPathFound ? 'shortest-path-found' : '',
+          finished ? 'finished' : '',
         ]
           .join(' ')
           .trim()}
@@ -104,7 +134,11 @@ const PlayingScreen = ({ gameState, error, hideError }: PlayingScreenProps) => {
               <div className="alias">{player.alias}</div>
               <div className="player-info">
                 <div className="status">
-                  {player.shortestClickCount.count !== -1 ? '🏁' : ''}
+                  {winner.alias === player.alias
+                    ? '🏆'
+                    : player.shortestClickCount.count !== -1
+                      ? '🏁'
+                      : ''}
                 </div>
                 <div className="visit-count">
                   {player.visitCount} articles visited
@@ -113,6 +147,21 @@ const PlayingScreen = ({ gameState, error, hideError }: PlayingScreenProps) => {
             </div>
           ))}
         </div>
+        {finished ? (
+          currentPlayer?.isCreator ? (
+            <button
+              onClick={() => {
+                resetLobby();
+              }}
+            >
+              Reset Lobby
+            </button>
+          ) : (
+            <div className="no-action-message">
+              Waiting for lobby leader to reset lobby
+            </div>
+          )
+        ) : null}
       </div>
       <Error error={error} hideError={hideError} />
     </div>

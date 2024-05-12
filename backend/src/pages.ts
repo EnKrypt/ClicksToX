@@ -194,7 +194,7 @@ export const visitPage = ({ client, parent, visited }: VisitPageRequest) => {
       player.shortestClickCount.count = clickCount;
       player.shortestClickCount.when = when;
       broadcastToLobbyPlayers({
-        message: `NEW_CLICK_COUNT ${player.alias} ${clickCount} ${when}`,
+        message: `NEW_CLICK_COUNT ${player.alias} ${clickCount} ${when.getTime()}`,
         code: lobby.code,
       });
     }

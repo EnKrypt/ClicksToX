@@ -114,6 +114,11 @@ const connect = (url: string, callback: () => void) => {
         app?.postMessage({ state: gameState });
         break;
       }
+      case 'FINISH': {
+        gameState.stage = STAGE.FINISHED;
+        app?.postMessage({ state: gameState });
+        break;
+      }
       default:
         break;
     }

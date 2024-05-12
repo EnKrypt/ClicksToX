@@ -141,30 +141,8 @@ interface EndGameRequest {
 
 const endGame = ({ lobby }: EndGameRequest) => {
   lobby.state.stage = STAGE.FINISHED;
-  const shortestPath = { count: Infinity, alias: '', when: new Date() };
-  for (const player of lobby.players) {
-    if (
-      (player.shortestClickCount.count !== -1 &&
-        player.shortestClickCount.count < shortestPath.count) ||
-      (player.shortestClickCount.count !== -1 &&
-        player.shortestClickCount.count === shortestPath.count &&
-        player.shortestClickCount.when < shortestPath.when)
-    ) {
-      shortestPath.count = player.shortestClickCount.count;
-      shortestPath.alias = player.alias;
-      shortestPath.when = player.shortestClickCount.when;
-    }
-  }
-  if (shortestPath.alias) {
-    broadcastToLobbyPlayers({
-      message: `FINISH ${shortestPath.count},${shortestPath.alias}`,
-      code: lobby.code,
-    });
-    return;
-  }
-  // Nobody finished, so no winner
   broadcastToLobbyPlayers({
-    message: `FINISH -1`,
+    message: `FINISH`,
     code: lobby.code,
   });
 };

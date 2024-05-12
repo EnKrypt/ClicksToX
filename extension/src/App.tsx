@@ -63,6 +63,10 @@ const App = () => {
     port?.postMessage({ command: `END_SUBMISSION` });
   };
 
+  const resetLobby = () => {
+    port?.postMessage({ command: `RESET` });
+  };
+
   useEffect(() => {
     const port = chrome.runtime.connect({ name: 'clicks-to-x' });
     setPort(port);
@@ -116,6 +120,18 @@ const App = () => {
     case STAGE.PLAYING:
       return (
         <PlayingScreen
+          finished={false}
+          resetLobby={resetLobby}
+          gameState={gameState}
+          error={error}
+          hideError={hideError}
+        />
+      );
+    case STAGE.FINISHED:
+      return (
+        <PlayingScreen
+          finished={true}
+          resetLobby={resetLobby}
           gameState={gameState}
           error={error}
           hideError={hideError}

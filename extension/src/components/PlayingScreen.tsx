@@ -29,29 +29,33 @@ const PlayingScreen = ({
     : undefined;
   const pathFound = currentPlayer?.shortestClickCount.count !== -1;
   /* We decide that the current player has found the shortest path in the game, if
-   * 1. The player has already found a complete path from source to destination
+   * 1. The current player has already found a complete path from source to destination
    * AND
    * 2. For every player in the lobby, if the player
-   *    2.1 Is not the same as the current player
+   *    2.1 Is the same as the current player
    *    OR
-   *    2.2 Has a bigger shortest click count than current player
+   *    2.2 Has not found a complete path from source to destination
    *    OR
-   *    2.3 Has the same shortest click count as current player
-   *    AND
-   *    2.4 Reached the shortest click count after the current player
+   *    2.3 Has a bigger shortest click count than current player
+   *    OR
+   *      2.3.1 Has the same shortest click count as current player
+   *      AND
+   *      2.3.2 Reached the shortest click count after the current player
    */
-  const shortestPathFound = pathFound
-    ? gameState.players.every(
-        (player) =>
-          currentPlayer?.alias !== player.alias ||
-          currentPlayer?.shortestClickCount.count <
-            player.shortestClickCount.count ||
-          (currentPlayer?.shortestClickCount.count ===
-            player.shortestClickCount.count &&
-            currentPlayer.shortestClickCount.when <
-              player.shortestClickCount.when)
-      )
-    : false;
+  const shortestPathFound =
+    currentPlayer && pathFound
+      ? gameState.players.every(
+          (player) =>
+            currentPlayer.alias === player.alias ||
+            player.shortestClickCount.count === -1 ||
+            currentPlayer.shortestClickCount.count <
+              player.shortestClickCount.count ||
+            (currentPlayer.shortestClickCount.count ===
+              player.shortestClickCount.count &&
+              currentPlayer.shortestClickCount.when <
+                player.shortestClickCount.when)
+        )
+      : false;
 
   // Calculate winner if the game is over
   const winner = {

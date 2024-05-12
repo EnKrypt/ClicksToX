@@ -1,12 +1,18 @@
-import { type State, initialGameState, STAGE } from './types';
+import { type State, initialGameState, STAGE, Node } from './types';
 
 let connection: WebSocket | undefined;
 let gameState: State = JSON.parse(JSON.stringify(initialGameState));
-let app: chrome.runtime.Port | undefined;
+const apps: Array<chrome.runtime.Port> = [];
+
+const sendMessageToApps = (message: Record<string, unknown>): void => {
+  for (const app of apps) {
+    app.postMessage(message);
+  }
+};
 
 const resetGameState = () => {
   gameState = JSON.parse(JSON.stringify(initialGameState));
-  app?.postMessage({ state: gameState });
+  sendMessageToApps({ state: gameState });
 };
 
 const connect = (url: string, callback: () => void) => {
@@ -14,14 +20,14 @@ const connect = (url: string, callback: () => void) => {
 
   connection.addEventListener('error', () => {
     resetGameState();
-    app?.postMessage({
+    sendMessageToApps({
       error: 'The connection to the server errored out',
     });
   });
 
   connection.addEventListener('close', () => {
     resetGameState();
-    app?.postMessage({
+    sendMessageToApps({
       error: 'The connection to the server was closed',
     });
   });
@@ -36,7 +42,7 @@ const connect = (url: string, callback: () => void) => {
     switch (commands[0]) {
       case 'ERROR': {
         commands.shift();
-        app?.postMessage({ error: commands.join(' ') });
+        sendMessageToApps({ error: commands.join(' ') });
         break;
       }
       case 'PLAYERS': {
@@ -65,7 +71,7 @@ const connect = (url: string, callback: () => void) => {
             }
             return 0;
           });
-        app?.postMessage({ state: gameState });
+        sendMessageToApps({ state: gameState });
         break;
       }
       case 'SUBMIT': {
@@ -75,20 +81,20 @@ const connect = (url: string, callback: () => void) => {
         if (player) {
           player.submission = commands[2];
         }
-        app?.postMessage({ state: gameState });
+        sendMessageToApps({ state: gameState });
         break;
       }
       case 'PLAYING': {
         gameState.stage = STAGE.PLAYING;
         gameState.source = commands[1];
         gameState.destination = commands[2];
-        app?.postMessage({ state: gameState });
+        sendMessageToApps({ state: gameState });
         chrome.tabs.create({ url: commands[1] });
         break;
       }
       case 'TIMER': {
         gameState.timer = Number(commands[1] as string);
-        app?.postMessage({ state: gameState });
+        sendMessageToApps({ state: gameState });
         break;
       }
       case 'VISIT_COUNT': {
@@ -98,7 +104,7 @@ const connect = (url: string, callback: () => void) => {
             break;
           }
         }
-        app?.postMessage({ state: gameState });
+        sendMessageToApps({ state: gameState });
         break;
       }
       case 'NEW_CLICK_COUNT': {
@@ -111,12 +117,22 @@ const connect = (url: string, callback: () => void) => {
             break;
           }
         }
-        app?.postMessage({ state: gameState });
+        sendMessageToApps({ state: gameState });
         break;
       }
       case 'FINISH': {
+        commands.shift();
+        const navigationTrees: Array<{ alias: string; tree: Node }> =
+          JSON.parse(commands.join(' '));
+        for (const tree of navigationTrees) {
+          for (const player of gameState.players) {
+            if (tree.alias === player.alias) {
+              player.tree = tree.tree;
+            }
+          }
+        }
         gameState.stage = STAGE.FINISHED;
-        app?.postMessage({ state: gameState });
+        sendMessageToApps({ state: gameState });
         break;
       }
       default:
@@ -135,10 +151,10 @@ interface Message {
 }
 
 chrome.runtime.onConnect.addListener((port) => {
-  app = port;
-  if (app.name === 'clicks-to-x') {
-    app.postMessage({ state: gameState });
-    app.onMessage.addListener((response: object) => {
+  if (port.name.startsWith('clicks-to-x')) {
+    apps.push(port);
+    port.postMessage({ state: gameState });
+    port.onMessage.addListener((response: object) => {
       if ('url' in response && 'command' in response) {
         connect(response.url as string, () => {
           sendCommand((response as Message).command);
@@ -155,6 +171,12 @@ chrome.runtime.onConnect.addListener((port) => {
         console.error(
           'ClicksToX: Received message does not contain `command` property'
         );
+      }
+    });
+    port.onDisconnect.addListener(() => {
+      const index = apps.indexOf(port);
+      if (index > -1) {
+        apps.splice(index);
       }
     });
   }

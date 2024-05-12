@@ -142,7 +142,7 @@ interface EndGameRequest {
 const endGame = ({ lobby }: EndGameRequest) => {
   lobby.state.stage = STAGE.FINISHED;
   broadcastToLobbyPlayers({
-    message: `FINISH`,
+    message: `FINISH ${JSON.stringify(lobby.players.map((player) => ({ alias: player.alias, tree: player.tree })))}`,
     code: lobby.code,
   });
 };

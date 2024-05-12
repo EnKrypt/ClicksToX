@@ -68,7 +68,9 @@ const App = () => {
   };
 
   useEffect(() => {
-    const port = chrome.runtime.connect({ name: 'clicks-to-x' });
+    const port = chrome.runtime.connect({
+      name: `clicks-to-x-${Math.random()}`,
+    });
     setPort(port);
     setLoading(false);
     port.onMessage.addListener((message) => {

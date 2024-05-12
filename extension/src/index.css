@@ -196,10 +196,10 @@
 }
 
 .clicks-to-x .lobby-info.path-found {
-  background: #202060;
+  background: #151540;
 }
 .clicks-to-x .lobby-info.path-found.shortest-path-found {
-  background: #206020;
+  background: #154015;
 }
 
 .clicks-to-x .lobby-code {
@@ -256,6 +256,10 @@
   display: flex;
   align-items: center;
   gap: 0.2em;
+}
+
+.clicks-to-x .player .player-info .status {
+  width: 1.5em;
 }
 
 .clicks-to-x .player .submission input {

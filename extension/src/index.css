@@ -304,8 +304,14 @@
 }
 
 .clicks-to-x .player .tree-container.show {
-  width: 100%;
-  height: 10em;
+  /* We specify dimensions in px because react-d3-tree can use these units for animations */
+  width: 350px;
+  height: 160px;
+}
+
+.clicks-to-x .player .tree-container .rd3t-label {
+  font-size: 0.8em;
+  transform: translate(-18px, 0px);
 }
 
 .clicks-to-x .player .tree-container .tree-root,
@@ -318,7 +324,7 @@
 }
 
 .clicks-to-x .player .tree-container .tree-path {
-  stroke: #d0d0d0;
+  stroke: #808080;
 }
 
 .clicks-to-x .player .tree-container .rd3t-label__title {
@@ -326,8 +332,8 @@
   fill: #ffffff;
 }
 .clicks-to-x .player .tree-container .rd3t-label__attributes {
-  color: #a0a0a0;
-  fill: #a0a0a0;
+  color: #c0c0c0;
+  fill: #c0c0c0;
 }
 
 .clicks-to-x .no-action-message {

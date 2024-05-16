@@ -10,10 +10,16 @@ export const isWikipediaArticle = (href: string): boolean => {
 };
 
 export const transformNavigationTree = (tree: Node): RawNodeDatum => {
+  const when = new Date(tree.when);
   const datum: RawNodeDatum = {
     name: getArticleSlug(new URL(tree.article)),
     attributes: {
-      clickedAt: tree.when.toString(),
+      visited: when.toLocaleString('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: true,
+      }),
     },
     children: tree.children.length
       ? tree.children.map((child) => transformNavigationTree(child))

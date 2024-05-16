@@ -51,8 +51,11 @@ const WaitingForPlayersScreen = ({
           </span>
         </div>
         <div className="players">
-          {gameState.players.map((player) => (
-            <div className="player" key={player.alias}>
+          {gameState.players.map((player, index) => (
+            <div
+              className={index % 2 === 0 ? 'player even' : 'player'}
+              key={player.alias}
+            >
               <div className="is-creator">{player.isCreator ? '👑' : ''}</div>
               <div className="alias">{player.alias}</div>
               <div className="submission">

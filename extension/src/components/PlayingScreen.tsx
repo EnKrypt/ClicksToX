@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
+import Tree from 'react-d3-tree';
 import { State } from '../types';
+import { getArticleSlug, transformNavigationTree } from '../utils';
 import Error from './Error';
-import { getArticleSlug } from '../utils';
 
 interface PlayingScreenProps {
   finished: boolean;
@@ -80,6 +81,8 @@ const PlayingScreen = ({
 
   const [sourceCopied, setSourceCopied] = useState<boolean>(false);
   const [destinationCopied, setDestinationCopied] = useState<boolean>(false);
+  const [indexOfPlayerExpanded, setIndexOfPlayerExpanded] =
+    useState<number>(-1);
 
   return (
     <div className="screen">
@@ -132,23 +135,66 @@ const PlayingScreen = ({
           </div>
         </div>
         <div className="players">
-          {gameState.players.map((player) => (
-            <div className="player" key={player.alias}>
-              <div className="is-creator">{player.isCreator ? '👑' : ''}</div>
-              <div className="alias">{player.alias}</div>
-              <div className="player-info">
-                <div className="status">
-                  {winner.alias === player.alias
-                    ? '🏆'
-                    : player.shortestClickCount.count !== -1
-                      ? '🏁'
-                      : ''}
-                </div>
-                <div className="visit-count">
-                  {player.visitCount} articles visited
+          {gameState.players.map((player, index) => (
+            <Fragment key={player.alias}>
+              <div
+                className={index % 2 === 0 ? 'player even' : 'player'}
+                key={player.alias}
+              >
+                <div className="is-creator">{player.isCreator ? '👑' : ''}</div>
+                <div className="alias">{player.alias}</div>
+                <div className="player-info">
+                  <div className="status">
+                    {winner.alias === player.alias
+                      ? '🏆'
+                      : player.shortestClickCount.count !== -1
+                        ? '🏁'
+                        : ''}
+                  </div>
+                  <div className="visit-count">
+                    {player.visitCount} articles visited
+                  </div>
                 </div>
               </div>
-            </div>
+              {finished ? (
+                <div
+                  className={
+                    index % 2 === 0 ? 'player tree even' : 'player tree'
+                  }
+                >
+                  <div
+                    className="message"
+                    onClick={() => {
+                      if (indexOfPlayerExpanded === index) {
+                        setIndexOfPlayerExpanded(-1);
+                      } else {
+                        setIndexOfPlayerExpanded(index);
+                      }
+                    }}
+                  >
+                    ↕️ Click to expand navigational tree
+                  </div>
+                  <div
+                    className={
+                      indexOfPlayerExpanded === index
+                        ? 'tree-container show'
+                        : 'tree-container'
+                    }
+                  >
+                    <Tree
+                      data={
+                        player.tree ? transformNavigationTree(player.tree) : []
+                      }
+                      dataKey={player.alias}
+                      rootNodeClassName="tree-root"
+                      branchNodeClassName="tree-node"
+                      leafNodeClassName="tree-leaf"
+                      pathClassFunc={() => 'tree-path'}
+                    />
+                  </div>
+                </div>
+              ) : null}
+            </Fragment>
           ))}
         </div>
         {finished ? (

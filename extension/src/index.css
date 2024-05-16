@@ -193,6 +193,7 @@
   flex-grow: 1;
   width: 100%;
   box-sizing: border-box;
+  overflow-x: auto;
 }
 
 .clicks-to-x .lobby-info.path-found {
@@ -219,17 +220,21 @@
 }
 
 .clicks-to-x .players {
-  background: #404050;
-  padding: 0.3em;
   border-radius: 0.2em;
   display: flex;
   flex-direction: column;
-  gap: 0.5em;
+  overflow: hidden;
 }
 
 .clicks-to-x .player {
+  padding: 0.4em;
+  background: #404050;
   display: flex;
   align-items: center;
+}
+
+.clicks-to-x .player.even {
+  background: #303040;
 }
 
 .clicks-to-x .player .is-creator {
@@ -279,6 +284,50 @@
   min-width: unset;
   font-size: 0.8em;
   margin: unset;
+}
+
+.clicks-to-x .player.tree {
+  flex-direction: column;
+}
+
+.clicks-to-x .player .message {
+  text-align: center;
+  width: 100%;
+  font-size: 0.8em;
+  cursor: pointer;
+}
+
+.clicks-to-x .player .tree-container {
+  width: 100%;
+  height: 0;
+  transition: height 0.3s ease;
+}
+
+.clicks-to-x .player .tree-container.show {
+  width: 100%;
+  height: 10em;
+}
+
+.clicks-to-x .player .tree-container .tree-root,
+.clicks-to-x .player .tree-container .tree-leaf {
+  fill: black;
+}
+
+.clicks-to-x .player .tree-container .tree-node {
+  fill: white;
+}
+
+.clicks-to-x .player .tree-container .tree-path {
+  stroke: #d0d0d0;
+}
+
+.clicks-to-x .player .tree-container .rd3t-label__title {
+  color: #ffffff;
+  fill: #ffffff;
+}
+.clicks-to-x .player .tree-container .rd3t-label__attributes {
+  color: #a0a0a0;
+  fill: #a0a0a0;
 }
 
 .clicks-to-x .no-action-message {

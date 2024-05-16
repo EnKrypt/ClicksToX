@@ -119,7 +119,7 @@ export const startGame = ({ lobby }: StartGameRequest) => {
     };
   }
   broadcastToLobbyPlayers({
-    message: `PLAYING ${lobby.state.source} ${lobby.state.destination}`,
+    message: `PLAYING ${lobby.state.source?.href} ${lobby.state.destination?.href}`,
     code: lobby.code,
   });
   const intervalId = setInterval(() => {

@@ -226,6 +226,9 @@ export const resetLobby = ({ client }: ResetLobbyRequest) => {
   lobby.state.destination = undefined;
   lobby.state.timer = lobby.roundTimeLimit;
   for (const player of lobby.players) {
+    player.shortestClickCount = { count: -1, when: new Date() };
+    player.visitCount = 0;
+    player.submission = undefined;
     player.tree = undefined;
   }
   broadcastPlayerListing({ code: lobby.code });

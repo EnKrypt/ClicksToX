@@ -1,6 +1,6 @@
 {
   "name": "clicks-to-x-backend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A browser game where your lobby races to get from one Wikipedia page to another in the fewest clicks",
   "author": "Arvind Kumar <arvind@enkrypt.in> (https://arvind.io)",
   "private": true,

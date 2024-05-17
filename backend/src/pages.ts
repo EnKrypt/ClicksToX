@@ -166,11 +166,12 @@ export const visitPage = ({ client, parent, visited }: VisitPageRequest) => {
       return;
     }
   }
-  parentNode.children.push({
+  const node = {
     article: new URL(`https://${config.wikipediaHost}${visited}`),
     when: new Date(),
     children: [],
-  });
+  };
+  parentNode.children.push(node);
   player.visitCount = player.visitCount + 1;
   broadcastToLobbyPlayers({
     message: `VISIT_COUNT ${player.alias} ${player.visitCount}`,
@@ -199,6 +200,20 @@ export const visitPage = ({ client, parent, visited }: VisitPageRequest) => {
       });
     }
   }
+
+  // If the page has a redirect, we want to update the node with the canonical article link instead
+  fetch(node.article.href)
+    .then((response) => response.text())
+    .then((html) => {
+      const matches = html.match(/rel="canonical" href="(.*)"/);
+      if (
+        matches?.length &&
+        matches.length >= 2 &&
+        matches[1].startsWith(`https://${config.wikipediaHost}`)
+      ) {
+        node.article = new URL(matches[1]);
+      }
+    });
 };
 
 interface FindNodeInTreeRequest {

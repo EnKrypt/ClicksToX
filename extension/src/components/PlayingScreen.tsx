@@ -152,7 +152,9 @@ const PlayingScreen = ({
                         : ''}
                   </div>
                   <div className="visit-count">
-                    {player.visitCount} articles visited
+                    {finished && player.shortestClickCount.count !== -1
+                      ? `Solved in ${player.shortestClickCount.count} clicks`
+                      : `${player.visitCount} articles visited`}
                   </div>
                 </div>
               </div>
@@ -172,7 +174,8 @@ const PlayingScreen = ({
                       }
                     }}
                   >
-                    ↕️ Click to expand navigational tree
+                    ↕️ Click to expand navigational tree ({player.visitCount}{' '}
+                    nodes)
                   </div>
                   <div
                     className={
@@ -190,17 +193,17 @@ const PlayingScreen = ({
                       branchNodeClassName="tree-node"
                       leafNodeClassName="tree-leaf"
                       pathClassFunc={() => 'tree-path'}
-                    dimensions={{ width: 350, height: 160 }}
-                    collapsible={false}
-                    separation={{ nonSiblings: 1, siblings: 0.5 }}
-                    nodeSize={{ x: 280, y: 140 }}
-                    translate={{ x: 175, y: 80 }}
-                    onNodeClick={(node) => {
-                      window.open(
-                        `https://en.wikipedia.org/wiki/${node.data.name}`,
-                        '_blank'
-                      );
-                    }}
+                      dimensions={{ width: 350, height: 160 }}
+                      collapsible={false}
+                      separation={{ nonSiblings: 1, siblings: 0.5 }}
+                      nodeSize={{ x: 280, y: 140 }}
+                      translate={{ x: 175, y: 80 }}
+                      onNodeClick={(node) => {
+                        window.open(
+                          `https://en.wikipedia.org/wiki/${node.data.name}`,
+                          '_blank'
+                        );
+                      }}
                     />
                   </div>
                 </div>

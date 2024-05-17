@@ -148,10 +148,10 @@ export const visitPage = ({ client, parent, visited }: VisitPageRequest) => {
     });
     return false;
   }
-  const parentNode = player.tree
-    ? findNodeInTree({ pathname: parent, node: player.tree })
-    : undefined;
-  if (!parentNode) {
+  const parentNodes = player.tree
+    ? findNodesInTree({ pathname: parent, node: player.tree, foundNodes: [] })
+    : [];
+  if (!parentNodes.length) {
     handlePlayerError({
       eventDescription: 'Could not update player navigation tree',
       reasonShownToPlayer:
@@ -160,81 +160,104 @@ export const visitPage = ({ client, parent, visited }: VisitPageRequest) => {
     });
     return false;
   }
-  for (const node of parentNode.children) {
-    if (node.article.pathname === visited) {
-      // Node already exists, we don't need to add it to the tree
-      return;
+
+  //Update navigation tree for each parent node found
+  let markAsVisited = false;
+  const addedNodes: Node[] = [];
+  for (const parentNode of parentNodes) {
+    for (const node of parentNode.children) {
+      if (node.article.pathname === visited) {
+        // Node already exists, we don't need to add it to the tree
+        break;
+      }
+    }
+    const node = {
+      article: new URL(`https://${config.wikipediaHost}${visited}`),
+      when: new Date(),
+      children: [],
+    };
+    parentNode.children.push(node);
+    addedNodes.push(node);
+    markAsVisited = true;
+
+    // If this is the destination page, then calculate click count
+    if (visited === lobby.state.destination?.pathname) {
+      const clickCount = player.tree
+        ? shortestPathInTree({
+            count: -1,
+            destinationPathname: lobby.state.destination.pathname,
+            tree: player.tree.children,
+          })
+        : -1;
+      if (
+        player.shortestClickCount.count === -1 ||
+        clickCount < player.shortestClickCount.count
+      ) {
+        const when = new Date();
+        player.shortestClickCount.count = clickCount;
+        player.shortestClickCount.when = when;
+        broadcastToLobbyPlayers({
+          message: `NEW_CLICK_COUNT ${player.alias} ${clickCount} ${when.getTime()}`,
+          code: lobby.code,
+        });
+      }
     }
   }
-  const node = {
-    article: new URL(`https://${config.wikipediaHost}${visited}`),
-    when: new Date(),
-    children: [],
-  };
-  parentNode.children.push(node);
-  player.visitCount = player.visitCount + 1;
-  broadcastToLobbyPlayers({
-    message: `VISIT_COUNT ${player.alias} ${player.visitCount}`,
-    code: lobby.code,
-  });
 
-  // If this is the destination page, then calculate click count
-  if (visited === lobby.state.destination?.pathname) {
-    const clickCount = player.tree
-      ? shortestPathInTree({
-          count: -1,
-          destinationPathname: lobby.state.destination.pathname,
-          tree: player.tree.children,
-        })
-      : -1;
-    if (
-      player.shortestClickCount.count === -1 ||
-      clickCount < player.shortestClickCount.count
-    ) {
-      const when = new Date();
-      player.shortestClickCount.count = clickCount;
-      player.shortestClickCount.when = when;
-      broadcastToLobbyPlayers({
-        message: `NEW_CLICK_COUNT ${player.alias} ${clickCount} ${when.getTime()}`,
-        code: lobby.code,
-      });
-    }
+  if (markAsVisited) {
+    player.visitCount = player.visitCount + 1;
+    broadcastToLobbyPlayers({
+      message: `VISIT_COUNT ${player.alias} ${player.visitCount}`,
+      code: lobby.code,
+    });
   }
 
   // If the page has a redirect, we want to update the node with the canonical article link instead
-  fetch(node.article.href)
-    .then((response) => response.text())
-    .then((html) => {
-      const matches = html.match(/rel="canonical" href="(.*)"/);
-      if (
-        matches?.length &&
-        matches.length >= 2 &&
-        matches[1].startsWith(`https://${config.wikipediaHost}`)
-      ) {
-        node.article = new URL(matches[1]);
-      }
-    });
+  if (addedNodes.length) {
+    fetch(addedNodes[0].article.href)
+      .then((response) => response.text())
+      .then((html) => {
+        const matches = html.match(/rel="canonical" href="(.*)"/);
+        if (
+          matches?.length &&
+          matches.length >= 2 &&
+          matches[1].startsWith(`https://${config.wikipediaHost}`)
+        ) {
+          for (const node of addedNodes) {
+            node.article = new URL(matches[1]);
+          }
+        }
+      });
+  }
 };
 
 interface FindNodeInTreeRequest {
   pathname: string;
   node: Node;
+  foundNodes: Node[];
 }
 
-const findNodeInTree = ({
+const findNodesInTree = ({
   pathname,
   node,
-}: FindNodeInTreeRequest): Node | undefined => {
+  foundNodes,
+}: FindNodeInTreeRequest): Node[] => {
   if (node.article.pathname === pathname) {
-    return node;
+    return [...foundNodes, node];
   }
   if (node.children.length) {
+    let foundNodesCumulative = [...foundNodes];
     for (const childNode of node.children) {
-      const targetNode = findNodeInTree({ pathname, node: childNode });
-      if (targetNode) {
-        return targetNode;
+      const foundNodesFromChildren = findNodesInTree({
+        pathname,
+        node: childNode,
+        foundNodes: foundNodesCumulative,
+      });
+      if (foundNodesFromChildren.length > foundNodesCumulative.length) {
+        foundNodesCumulative = [...foundNodesFromChildren];
       }
     }
+    return foundNodesCumulative;
   }
-  return undefined;
+  return foundNodes;
 };

@@ -4,6 +4,11 @@ let connection: WebSocket | undefined;
 let gameState: State = JSON.parse(JSON.stringify(initialGameState));
 const apps: Array<chrome.runtime.Port> = [];
 
+const sanitizePlayerName = (name: string) =>
+  name[0] === '~' || name[0] === '!' || name[0] === '@'
+    ? name.substring(1)
+    : name;
+
 const sendMessageToApps = (message: Record<string, unknown>): void => {
   for (const app of apps) {
     app.postMessage(message);
@@ -46,24 +51,44 @@ const connect = (url: string, callback: () => void) => {
         break;
       }
       case 'PLAYERS': {
-        gameState.stage = STAGE.WAITING_FOR_PLAYERS_TO_JOIN;
+        // If a game is in progress, then a player list broadcast is because a player left the game, so we don't want to change the game stage
+        if (gameState.stage !== STAGE.PLAYING) {
+          gameState.stage = STAGE.WAITING_FOR_PLAYERS_TO_JOIN;
+        }
         gameState.timer = Number(commands[2] as string);
         gameState.code = commands[1] as string;
-        const playerNames = (commands[3] as string).split(',');
-        // Populate the player list in the game state
-        gameState.players = playerNames
-          .map((name) => ({
-            isSelf: name[0] === '~' || name[0] === '@',
-            isCreator: name[0] === '~' || name[0] === '!',
-            alias:
-              name[0] === '~' || name[0] === '!' || name[0] === '@'
-                ? name.substring(1)
-                : name,
-            submission: undefined,
-            tree: undefined,
-            visitCount: 0,
-            shortestClickCount: { count: -1, when: new Date() },
-          }))
+        const playerListing = (commands[3] as string).split(',');
+        const sanitizedPlayerNames = playerListing.map(sanitizePlayerName);
+        // If a game is not in progress, then we populate the player list in game state from scratch
+        if (gameState.stage !== STAGE.PLAYING) {
+          gameState.players = [];
+        }
+        // After that, we remove any players that are no longer present (in case of a game that is currently active)
+        gameState.players = gameState.players.filter((player) =>
+          sanitizedPlayerNames.includes(player.alias)
+        );
+        // Finally, we add or update players according to the listing
+        const updatedPlayers = playerListing
+          .map((name) => {
+            const existingPlayer = gameState.players.find(
+              (player) => player.alias === sanitizePlayerName(name)
+            );
+            return {
+              isSelf: name[0] === '~' || name[0] === '@',
+              isCreator: name[0] === '~' || name[0] === '!',
+              alias: existingPlayer
+                ? existingPlayer.alias
+                : sanitizePlayerName(name),
+              submission: existingPlayer
+                ? existingPlayer.submission
+                : undefined,
+              tree: existingPlayer ? existingPlayer.tree : undefined,
+              visitCount: existingPlayer ? existingPlayer.visitCount : 0,
+              shortestClickCount: existingPlayer
+                ? existingPlayer.shortestClickCount
+                : { count: -1, when: new Date() },
+            };
+          })
           // Bring the current player to the top of the player list
           .sort((playerA) => {
             if (playerA.isSelf) {
@@ -71,6 +96,7 @@ const connect = (url: string, callback: () => void) => {
             }
             return 0;
           });
+        gameState.players = updatedPlayers;
         sendMessageToApps({ state: gameState });
         break;
       }

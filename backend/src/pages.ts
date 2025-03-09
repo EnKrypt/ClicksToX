@@ -107,15 +107,29 @@ const setPages = async ({ lobby }: SetPagesRequest) => {
   const randomPage = (await (
     await fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary')
   ).json()) as { content_urls: { desktop: { page: string } } };
-  const source = new URL(randomPage.content_urls.desktop.page);
+  let source = new URL(randomPage.content_urls.desktop.page);
   let destination = new URL(
     `https://${config.wikipediaHost}/wiki/Shia_LaBeouf` // Actual Cannibal
   );
   const submissions = lobby.players
     .map((player) => player.submission)
     .filter((submission) => (submission ? true : false)) as URL[];
-  if (submissions.length > 0) {
-    destination = submissions[Math.floor(Math.random() * submissions.length)];
+  const distinctSubmissions = [...new Set(submissions)];
+  if (distinctSubmissions.length > 0) {
+    destination =
+      distinctSubmissions[
+        Math.floor(Math.random() * distinctSubmissions.length)
+      ];
+  }
+  // If there's more than one unique submission, we can pick the source from the submissions as well
+  if (distinctSubmissions.length >= 2) {
+    const remainingSubmissions = distinctSubmissions.filter(
+      (submission) => submission !== destination
+    );
+    source =
+      remainingSubmissions[
+        Math.floor(Math.random() * remainingSubmissions.length)
+      ];
   }
   lobby.state.source = source;
   lobby.state.destination = destination;

@@ -17,7 +17,7 @@ This game can be played by any group that meets the following requirements:
    1. Five minutes is a good default amount.
 2. A destination page is picked first and communicated to the lobby. This should be a proper noun that is well recognized by your lobby members.
    1. Common nouns, unrecognized words and stub articles are not taken since they don't encourage novel paths from the source.
-3. A source page is picked next. This can be a random page. The timer starts when the source page is communicated to all lobby members.
+3. A source page is picked next. This can be picked as well, although a random page for the source is also fine. The timer starts when the source page is communicated to all lobby members.
 4. Each player then privately attempts to navigate to the destination page by clicking on article links in the source page and subsequently opened pages.
    1. The links used must be a part of the article:
       1. Talk, History, Source, Tools, Disambiguation, References, Citations etc aren't considered as part of the article.
@@ -65,7 +65,7 @@ You need to load the downloaded release as an unpacked extension. This process d
 4. The lobby creator can end submission. This causes one of the submitted destinations to be picked at random.
    1. If all submissions are blank, the page for Shia LaBeouf is selected. Yup, at least one of you'd better submit a URL. [Or else](https://www.youtube.com/watch?v=o0u4M6vppCI).
 5. All members should see the picked destination page. The lobby creator can now choose to start the game.
-6. When that happens, a random Wikipedia page is picked as the source page. A few things will now happen:
+6. The source page is then automatically selected for the lobby. If there were more than one distinct submissions for the destination page, the source page is picked from the remaining pool of submissions, otherwise a random Wikipedia page is picked as the source page. A few things will now happen:
    1. The source page auto-opens.
    1. The timer starts to count down.
 7. As you make your way to the destination page, you will notice indicators for whether a player has completed a path from the source page to the destination page.

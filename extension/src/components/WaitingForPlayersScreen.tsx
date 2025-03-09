@@ -26,7 +26,9 @@ const WaitingForPlayersScreen = ({
 
   const [copied, setCopied] = useState<boolean>(false);
   const [submitted, setSubmitted] = useState<boolean>(false);
-  const [submission, setSubmission] = useState<string>('');
+  const [submission, setSubmission] = useState<string>(
+    currentPlayer?.submission ?? ''
+  );
 
   return (
     <div className="screen">

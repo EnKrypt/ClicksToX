@@ -22,7 +22,7 @@ export const addPlayerToLobby = ({
   isCreator,
 }: AddPlayerToLobbyRequest) => {
   logger.verbose(
-    `Adding client with IP: ${request.socket.remoteAddress}, X-Forwarded-For: ${(request.headers['x-forwarded-for'] as string | undefined)?.split(',')[0].trim()} to lobby '${code}'`
+    `Adding client with IP: ${getIpAddress(request)}, X-Forwarded-For: ${(request.headers['x-forwarded-for'] as string | undefined)?.split(',')[0].trim()} to lobby '${code}'`
   );
 
   const badLobby = clientToLobbyMapping.get(client);
@@ -107,7 +107,7 @@ interface RemovePlayerRequest {
 
 export const removePlayer = ({ client, request }: RemovePlayerRequest) => {
   logger.verbose(
-    `Removing client with IP: ${request.socket.address()}, X-Forwarded-For: ${(request.headers['x-forwarded-for'] as string | undefined)?.split(',')[0].trim()}`
+    `Removing client with IP: ${getIpAddress(request)}, X-Forwarded-For: ${(request.headers['x-forwarded-for'] as string | undefined)?.split(',')[0].trim()}`
   );
 
   const lobby = clientToLobbyMapping.get(client);
@@ -142,4 +142,16 @@ export const removePlayer = ({ client, request }: RemovePlayerRequest) => {
   }
 
   client.terminate();
+};
+
+const getIpAddress = (request: IncomingMessage): string => {
+  let ipAddress = 'INVALID';
+  const remoteAddress = request.socket.remoteAddress;
+  const addressInfo = request.socket.address();
+  if ('address' in addressInfo) {
+    ipAddress = addressInfo.address;
+  } else if (remoteAddress) {
+    ipAddress = remoteAddress;
+  }
+  return ipAddress;
 };

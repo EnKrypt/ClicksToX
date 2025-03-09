@@ -123,7 +123,11 @@ export const startGame = ({ lobby }: StartGameRequest) => {
     code: lobby.code,
   });
   const intervalId = setInterval(() => {
-    if (lobby.state.timer === 0 || !codeToLobbyMapping.get(lobby.code)) {
+    if (
+      lobby.state.timer <= 0 ||
+      !codeToLobbyMapping.get(lobby.code) ||
+      lobby.players.length <= 1
+    ) {
       clearTimeout(intervalId);
       endGame({ lobby });
     }
